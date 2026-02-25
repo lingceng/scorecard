@@ -81,14 +81,15 @@ overflow: hidden;
 .table-header {
 display: grid;
 grid-template-columns: 70px 1fr 72px;
-padding: 8px 14px;
+padding: 9px 14px;
 font-size: 11px;
 color: var(–text-dim);
 font-weight: 500;
 letter-spacing: 1.5px;
-border-bottom: 1px solid var(–border);
-text-align: center;
+border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+background-color: rgba(255, 255, 255, 0.025);
 }
+.table-header span { text-align: center; }
 .table-header span:first-child { text-align: left; }
 
 /* Player Row */
@@ -142,6 +143,7 @@ font-size: 34px;
 font-weight: 500;
 line-height: 1;
 min-width: 32px;
+text-align: center;
 transition: color 0.3s ease;
 }
 .total-score.positive { color: #e94560; }
@@ -519,7 +521,7 @@ function renderPlayers() {
     var ww = document.createElement('div'); ww.className = 'wheel-container'; ww.id = 'wheel-' + i;
     var ind = document.createElement('div'); ind.className = 'wheel-indicator'; ww.appendChild(ind);
     var tk = document.createElement('div'); tk.className = 'wheel-track'; tk.id = 'track-' + i;
-    for (var v = 10; v >= -10; v--) {
+    for (var v = 20; v >= -20; v--) {
       var it = document.createElement('div'); it.className = 'wheel-item';
       it.setAttribute('data-value', v);
       if (v > 0) { it.textContent = '+' + v; it.style.color = '#e94560'; }
@@ -535,9 +537,9 @@ function renderPlayers() {
   resetAutoCalc();
 }
 
-var IH = 34, TI = 21;
-function v2i(v) { return 10 - v; }
-function i2v(i) { return 10 - i; }
+var IH = 34, TI = 41;
+function v2i(v) { return 20 - v; }
+function i2v(i) { return 20 - i; }
 
 function setWheelValue(pi, value, anim) {
   var tk = document.getElementById('track-' + pi);
@@ -627,7 +629,7 @@ function checkAutoCalc() {
     var sum = 0;
     for (var k = 0; k < 4; k++) sum += currentScores[k];
     var av = currentScores[ui] - sum;
-    if (av >= -10 && av <= 10) {
+    if (av >= -20 && av <= 20) {
       autoCalcIndex = ui;
       setWheelValue(ui, av, true);
       document.getElementById('row-' + ui).classList.add('auto-highlighted');
