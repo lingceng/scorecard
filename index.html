@@ -80,21 +80,23 @@ overflow: hidden;
 }
 .table-header {
 display: grid;
-grid-template-columns: 1fr auto;
+grid-template-columns: 70px 1fr 72px;
 padding: 8px 14px;
 font-size: 11px;
 color: var(–text-dim);
 font-weight: 500;
 letter-spacing: 1.5px;
 border-bottom: 1px solid var(–border);
+text-align: center;
 }
+.table-header span:first-child { text-align: left; }
 
 /* Player Row */
 .player-row {
 display: grid;
-grid-template-columns: 1fr auto;
+grid-template-columns: 70px 1fr 72px;
 align-items: center;
-padding: 8px 10px 8px 14px;
+padding: 8px 14px;
 border-bottom: 1px solid var(–border);
 min-height: 76px;
 position: relative;
@@ -107,11 +109,11 @@ border-color: rgba(233, 69, 96, 0.35);
 box-shadow: 0 0 12px rgba(233, 69, 96, 0.1);
 }
 
-/* Left: avatar + total */
-.player-left {
+/* Avatar cell */
+.avatar-cell {
 display: flex;
 align-items: center;
-gap: 20px;
+justify-content: flex-start;
 }
 .avatar {
 width: 48px;
@@ -406,7 +408,8 @@ pointer-events: none; opacity: 0;
 
   <div class="score-table">
     <div class="table-header">
-      <span>玩家 / 总分</span>
+      <span>玩家</span>
+      <span>总分</span>
       <span>本轮得分</span>
     </div>
     <div id="playerRows"></div>
@@ -495,18 +498,23 @@ function renderPlayers() {
     var row = document.createElement('div');
     row.className = 'player-row'; row.id = 'row-' + i;
 
-    var left = document.createElement('div'); left.className = 'player-left';
+    // Col 1: Avatar
+    var ac = document.createElement('div'); ac.className = 'avatar-cell';
     var av = document.createElement('div'); av.className = 'avatar ' + COLORS[i];
     av.setAttribute('role', 'button'); av.setAttribute('tabindex', '0');
     av.textContent = players[i];
     (function(idx) { av.onclick = function() { openLetterModal(idx); }; })(i);
+    ac.appendChild(av);
+
+    // Col 2: Total score
     var td = document.createElement('div');
     td.className = 'total-score ' + (totals[i] > 0 ? 'positive' : totals[i] < 0 ? 'negative' : 'zero');
     td.id = 'total-' + i; td.textContent = totals[i];
-    left.appendChild(av); left.appendChild(td);
 
+    // Flash overlay
     var flash = document.createElement('div'); flash.className = 'score-flash'; flash.id = 'flash-' + i;
 
+    // Col 3: Wheel
     var wc = document.createElement('div'); wc.className = 'wheel-cell';
     var ww = document.createElement('div'); ww.className = 'wheel-container'; ww.id = 'wheel-' + i;
     var ind = document.createElement('div'); ind.className = 'wheel-indicator'; ww.appendChild(ind);
@@ -520,7 +528,7 @@ function renderPlayers() {
       tk.appendChild(it);
     }
     ww.appendChild(tk); wc.appendChild(ww);
-    row.appendChild(left); row.appendChild(wc); row.appendChild(flash);
+    row.appendChild(ac); row.appendChild(td); row.appendChild(wc); row.appendChild(flash);
     c.appendChild(row);
     setupWheel(i); setWheelValue(i, 0, false);
   }
