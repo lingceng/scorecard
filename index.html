@@ -5,8 +5,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>打牌计分器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
+/* ===== RESET & VARIABLES ===== */
 :root {
   --bg: #0c0c18;
   --surface: #151526;
@@ -16,281 +19,652 @@
   --accent: #e94560;
   --red: #e94560;
   --green: #2ecc71;
-  --border: rgba(255,255,255,0.05);
+  --border: rgba(255, 255, 255, 0.05);
   --radius: 16px;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.container{max-width:420px;margin:0 auto;padding:12px 10px 100px}
 
-/* Header */
-.header{text-align:center;padding:8px 0 12px}
-.header h1{font-size:14px;font-weight:700;letter-spacing:4px;color:var(–text-dim);text-transform:uppercase}
+*, *::before, *::after {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
+}
+
+/* Global button reset — critical for iOS Safari & GitHub Pages */
+button {
+-webkit-appearance: none;
+-moz-appearance: none;
+appearance: none;
+border: none;
+background: none;
+color: inherit;
+font: inherit;
+cursor: pointer;
+outline: none;
+line-height: 1.2;
+}
+
+body {
+font-family: ‘Noto Sans SC’, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif;
+background-color: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
+}
+
+.container {
+max-width: 420px;
+margin: 0 auto;
+padding: 12px 10px 100px 10px;
+}
+
+/* ===== HEADER ===== */
+.header {
+text-align: center;
+padding: 8px 0 12px 0;
+}
+.header h1 {
+font-size: 14px;
+font-weight: 700;
+letter-spacing: 4px;
+color: var(–text-dim);
+text-transform: uppercase;
+}
 
 /* ===== SCORE TABLE ===== */
-.score-table{background:var(–surface);border-radius:var(–radius);border:1px solid var(–border);overflow:hidden}
-
-.table-header{
-display:grid;grid-template-columns:1fr auto;
-padding:8px 14px;font-size:11px;color:var(–text-dim);
-font-weight:500;letter-spacing:1.5px;border-bottom:1px solid var(–border);
+.score-table {
+background-color: var(–surface);
+border-radius: var(–radius);
+border: 1px solid var(–border);
+overflow: hidden;
 }
 
-.player-row{
-display:grid;grid-template-columns:1fr auto;
-align-items:center;padding:8px 10px 8px 12px;
-border-bottom:1px solid var(–border);
-min-height:76px;transition:background 0.4s;
-}
-.player-row:last-child{border-bottom:none}
-.player-row.auto-highlighted{background:rgba(233,69,96,0.04)}
-.player-row.auto-highlighted .wheel-indicator{
-border-color:rgba(233,69,96,0.35);box-shadow:0 0 12px rgba(233,69,96,0.1);
-}
-
-/* Left: avatar + total grouped tight */
-.player-left{display:flex;align-items:center;gap:12px}
-
-.avatar{
-width:48px;height:48px;border-radius:13px;
-display:flex;align-items:center;justify-content:center;
-font-family:‘DM Mono’,monospace;font-size:22px;font-weight:500;
-cursor:pointer;transition:transform 0.15s;color:#fff;flex-shrink:0;
-box-shadow:0 3px 12px rgba(0,0,0,0.35);
-}
-.avatar:active{transform:scale(0.92)}
-.avatar.p0{background:linear-gradient(140deg,#ff6b81,#c0392b)}
-.avatar.p1{background:linear-gradient(140deg,#54a0ff,#2471a3)}
-.avatar.p2{background:linear-gradient(140deg,#5fd68d,#27ae60)}
-.avatar.p3{background:linear-gradient(140deg,#feca57,#d68910)}
-
-.total-score{
-font-family:‘DM Mono’,monospace;font-size:34px;font-weight:500;
-line-height:1;transition:color 0.3s;min-width:40px;
-}
-.total-score.positive{color:var(–red)}
-.total-score.negative{color:var(–green)}
-.total-score.zero{color:var(–text-dim)}
-
-/* Right: wheel */
-.wheel-cell{display:flex;justify-content:center;align-items:center}
-.wheel-container{
-width:56px;height:100px;position:relative;overflow:hidden;
-cursor:grab;touch-action:none;
-}
-.wheel-track{
-position:absolute;width:100%;left:0;
-transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-.wheel-item{
-height:34px;display:flex;align-items:center;justify-content:center;
-font-family:‘DM Mono’,monospace;font-size:18px;font-weight:500;
-opacity:0.15;transition:opacity 0.2s,transform 0.2s;user-select:none;
-}
-.wheel-item.active{opacity:1;transform:scale(1.15)}
-.wheel-item.adjacent{opacity:0.35}
-.wheel-container::before,.wheel-container::after{
-content:’’;position:absolute;left:0;right:0;height:33px;z-index:2;pointer-events:none;
-}
-.wheel-container::before{top:0;background:linear-gradient(to bottom,var(–surface),transparent)}
-.wheel-container::after{bottom:0;background:linear-gradient(to top,var(–surface),transparent)}
-.player-row.auto-highlighted .wheel-container::before{background:linear-gradient(to bottom,#1a1628,transparent)}
-.player-row.auto-highlighted .wheel-container::after{background:linear-gradient(to top,#1a1628,transparent)}
-.wheel-indicator{
-position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-width:52px;height:34px;border-radius:8px;
-border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);
-z-index:1;pointer-events:none;transition:border-color 0.4s,box-shadow 0.4s;
+.table-header {
+display: grid;
+grid-template-columns: 1fr auto;
+padding: 8px 14px;
+font-size: 11px;
+color: var(–text-dim);
+font-weight: 500;
+letter-spacing: 1.5px;
+border-bottom: 1px solid var(–border);
 }
 
-/* ===== SUBMIT ===== */
-.submit-section{padding:14px 0 6px;position:relative}
-.submit-btn{
-width:100%;padding:16px;border:none;border-radius:var(–radius);
-background:linear-gradient(135deg,var(–accent),#b8344a);
-color:#fff;font-size:16px;font-weight:700;
-font-family:‘Noto Sans SC’,sans-serif;cursor:pointer;
-transition:transform 0.15s,opacity 0.15s;letter-spacing:2px;
-box-shadow:0 4px 20px rgba(233,69,96,0.25);
-position:relative;overflow:hidden;
+/* ===== PLAYER ROW ===== */
+.player-row {
+display: grid;
+grid-template-columns: 1fr auto;
+align-items: center;
+padding: 8px 10px 8px 14px;
+border-bottom: 1px solid var(–border);
+min-height: 76px;
+position: relative;
+transition: background-color 0.4s ease;
 }
-.submit-btn:active{transform:scale(0.97);opacity:0.9}
-
-/* Ripple on button */
-.submit-btn .ripple{
-position:absolute;border-radius:50%;background:rgba(255,255,255,0.35);
-transform:scale(0);animation:rippleAnim 0.6s ease-out forwards;
-pointer-events:none;
+.player-row:last-child {
+border-bottom: none;
 }
-@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+.player-row.auto-highlighted {
+background-color: rgba(233, 69, 96, 0.04);
+}
+.player-row.auto-highlighted .wheel-indicator {
+border-color: rgba(233, 69, 96, 0.35);
+box-shadow: 0 0 12px rgba(233, 69, 96, 0.1);
+}
 
-/* ===== CONFETTI CANVAS ===== */
-#confettiCanvas{
-position:fixed;top:0;left:0;width:100%;height:100%;
-pointer-events:none;z-index:300;
+/* Left group: avatar + total */
+.player-left {
+display: flex;
+align-items: center;
+gap: 20px;
+}
+
+/* Avatar */
+.avatar {
+width: 48px;
+height: 48px;
+border-radius: 13px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘DM Mono’, monospace;
+font-size: 22px;
+font-weight: 500;
+color: #fff;
+flex-shrink: 0;
+box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+transition: transform 0.15s ease;
+cursor: pointer;
+}
+.avatar:active {
+transform: scale(0.92);
+}
+.avatar.p0 { background: linear-gradient(140deg, #ff6b81, #c0392b); }
+.avatar.p1 { background: linear-gradient(140deg, #54a0ff, #2471a3); }
+.avatar.p2 { background: linear-gradient(140deg, #5fd68d, #27ae60); }
+.avatar.p3 { background: linear-gradient(140deg, #feca57, #d68910); }
+
+/* Total score */
+.total-score {
+font-family: ‘DM Mono’, monospace;
+font-size: 34px;
+font-weight: 500;
+line-height: 1;
+min-width: 32px;
+transition: color 0.3s ease;
+}
+.total-score.positive { color: var(–red); }
+.total-score.negative { color: var(–green); }
+.total-score.zero { color: var(–text-dim); }
+
+/* ===== WHEEL PICKER ===== */
+.wheel-cell {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.wheel-container {
+width: 56px;
+height: 100px;
+position: relative;
+overflow: hidden;
+cursor: grab;
+touch-action: none;
+}
+.wheel-track {
+position: absolute;
+width: 100%;
+left: 0;
+transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.wheel-item {
+height: 34px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘DM Mono’, monospace;
+font-size: 18px;
+font-weight: 500;
+opacity: 0.15;
+transition: opacity 0.2s ease, transform 0.2s ease;
+-webkit-user-select: none;
+user-select: none;
+}
+.wheel-item.active {
+opacity: 1;
+transform: scale(1.15);
+}
+.wheel-item.adjacent {
+opacity: 0.35;
+}
+
+/* Wheel fade masks */
+.wheel-container::before,
+.wheel-container::after {
+content: ‘’;
+position: absolute;
+left: 0;
+right: 0;
+height: 33px;
+z-index: 2;
+pointer-events: none;
+}
+.wheel-container::before {
+top: 0;
+background: linear-gradient(to bottom, var(–surface), transparent);
+}
+.wheel-container::after {
+bottom: 0;
+background: linear-gradient(to top, var(–surface), transparent);
+}
+.player-row.auto-highlighted .wheel-container::before {
+background: linear-gradient(to bottom, #1a1628, transparent);
+}
+.player-row.auto-highlighted .wheel-container::after {
+background: linear-gradient(to top, #1a1628, transparent);
+}
+
+/* Selection frame */
+.wheel-indicator {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 52px;
+height: 34px;
+border-radius: 8px;
+border: 1.5px solid rgba(255, 255, 255, 0.1);
+background-color: rgba(255, 255, 255, 0.02);
+z-index: 1;
+pointer-events: none;
+transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.submit-section {
+padding: 14px 0 6px 0;
+position: relative;
+}
+.submit-btn {
+display: block;
+width: 100%;
+padding: 16px 0;
+border: none;
+border-radius: var(–radius);
+background: linear-gradient(135deg, var(–accent), #b8344a);
+color: #fff;
+font-size: 16px;
+font-weight: 700;
+font-family: ‘Noto Sans SC’, sans-serif;
+letter-spacing: 2px;
+box-shadow: 0 4px 20px rgba(233, 69, 96, 0.25);
+position: relative;
+overflow: hidden;
+transition: transform 0.15s ease, opacity 0.15s ease;
+-webkit-appearance: none;
+}
+.submit-btn:active {
+transform: scale(0.97);
+opacity: 0.9;
+}
+
+/* Ripple */
+.submit-btn .ripple {
+position: absolute;
+border-radius: 50%;
+background-color: rgba(255, 255, 255, 0.35);
+transform: scale(0);
+animation: rippleAnim 0.6s ease-out forwards;
+pointer-events: none;
+}
+@keyframes rippleAnim {
+to { transform: scale(4); opacity: 0; }
+}
+
+/* ===== CONFETTI ===== */
+#confettiCanvas {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+z-index: 300;
 }
 
 /* ===== HISTORY ===== */
-.history-section{margin-top:18px}
-.history-title{
-font-size:12px;color:var(–text-dim);font-weight:500;
-letter-spacing:1.5px;margin-bottom:8px;
-display:flex;align-items:center;justify-content:space-between;
+.history-section {
+margin-top: 18px;
 }
-.history-list{display:flex;flex-direction:column;gap:5px}
-.history-item{
-background:var(–surface);border-radius:10px;padding:9px 12px;
-display:grid;grid-template-columns:32px 1fr auto;
-align-items:center;gap:8px;border:1px solid var(–border);
+.history-title {
+font-size: 12px;
+color: var(–text-dim);
+font-weight: 500;
+letter-spacing: 1.5px;
+margin-bottom: 8px;
+display: flex;
+align-items: center;
+justify-content: space-between;
 }
-.history-item.newest{animation:slideIn 0.35s ease}
-@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-
-.history-round{font-family:‘DM Mono’,monospace;font-size:11px;color:var(–text-dim);text-align:center}
-.history-scores{display:flex;gap:10px}
-.history-score-item{
-display:flex;align-items:center;gap:3px;
-font-family:‘DM Mono’,monospace;font-size:13px;
+.history-list {
+display: flex;
+flex-direction: column;
+gap: 5px;
 }
-.history-score-item .mini-avatar{
-width:18px;height:18px;border-radius:5px;
-display:flex;align-items:center;justify-content:center;
-font-size:9px;color:#fff;font-family:‘DM Mono’,monospace;
+.history-item {
+background-color: var(–surface);
+border-radius: 10px;
+padding: 9px 12px;
+display: grid;
+grid-template-columns: 32px 1fr auto;
+align-items: center;
+gap: 8px;
+border: 1px solid var(–border);
 }
-.undo-btn{
-background:none;border:1px solid rgba(233,69,96,0.25);color:var(–accent);
-font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;
-font-family:‘Noto Sans SC’,sans-serif;transition:all 0.15s;
+.history-item.newest {
+animation: slideIn 0.35s ease;
 }
-.undo-btn:active{background:rgba(233,69,96,0.08)}
-.show-more-btn{
-background:none;border:1px solid var(–border);color:var(–text-dim);
-width:100%;padding:10px;border-radius:10px;font-size:12px;cursor:pointer;
-font-family:‘Noto Sans SC’,sans-serif;margin-top:5px;
-}
-.no-history{text-align:center;color:var(–text-dim);font-size:13px;padding:18px;opacity:0.5}
-
-/* New Game */
-.new-game-section{margin-top:22px;padding-bottom:20px}
-.new-game-btn{
-width:100%;padding:14px;border:1.5px solid rgba(255,255,255,0.08);
-border-radius:var(–radius);background:transparent;color:var(–text-dim);
-font-size:14px;font-weight:500;font-family:‘Noto Sans SC’,sans-serif;
-cursor:pointer;letter-spacing:1px;
+@keyframes slideIn {
+from { opacity: 0; transform: translateY(-10px); }
+to { opacity: 1; transform: translateY(0); }
 }
 
-/* Modals */
-.modal-overlay{
-position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;
-display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);
+.history-round {
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+color: var(–text-dim);
+text-align: center;
 }
-.modal-overlay.active{display:flex}
-.modal-sheet{
-background:var(–surface);border-radius:20px 20px 0 0;
-width:100%;max-width:420px;padding:20px 16px 36px;animation:sheetUp 0.3s ease;
+.history-scores {
+display: flex;
+gap: 10px;
 }
-@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-title{font-size:15px;font-weight:700;text-align:center;margin-bottom:16px}
-.letter-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.letter-option{
-aspect-ratio:1;border:none;border-radius:10px;
-background:rgba(255,255,255,0.05);color:var(–text);
-font-family:‘DM Mono’,monospace;font-size:18px;font-weight:500;
-cursor:pointer;display:flex;align-items:center;justify-content:center;
+.history-score-item {
+display: flex;
+align-items: center;
+gap: 3px;
+font-family: ‘DM Mono’, monospace;
+font-size: 13px;
 }
-.letter-option:active{transform:scale(0.92)}
-.letter-option.taken{opacity:0.15;pointer-events:none}
-.letter-option.current{background:var(–accent);color:#fff}
-.modal-cancel{
-width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;
-background:rgba(255,255,255,0.05);color:var(–text-dim);font-size:14px;
-font-family:‘Noto Sans SC’,sans-serif;cursor:pointer;
+.history-score-item .mini-avatar {
+width: 18px;
+height: 18px;
+border-radius: 5px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 9px;
+color: #fff;
+font-family: ‘DM Mono’, monospace;
 }
 
-.confirm-modal{
-position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;
-display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);
+/* Undo button */
+.undo-btn {
+display: inline-block;
+padding: 4px 10px;
+border: 1px solid rgba(233, 69, 96, 0.25);
+border-radius: 6px;
+background-color: transparent;
+color: var(–accent);
+font-size: 11px;
+font-family: ‘Noto Sans SC’, sans-serif;
+-webkit-appearance: none;
+transition: background-color 0.15s ease;
 }
-.confirm-modal.active{display:flex}
-.confirm-box{
-background:var(–surface);border-radius:var(–radius);
-padding:24px 20px;width:300px;text-align:center;animation:popIn 0.25s ease;
+.undo-btn:active {
+background-color: rgba(233, 69, 96, 0.08);
 }
-@keyframes popIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
-.confirm-box h3{font-size:17px;margin-bottom:8px}
-.confirm-box p{font-size:13px;color:var(–text-dim);margin-bottom:20px;line-height:1.6}
-.confirm-actions{display:flex;gap:10px}
-.confirm-actions button{
-flex:1;padding:12px;border:none;border-radius:10px;
-font-size:14px;font-weight:500;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;
-}
-.confirm-no{background:rgba(255,255,255,0.06);color:var(–text)}
-.confirm-yes{background:var(–accent);color:#fff}
 
-.toast{
-position:fixed;top:56px;left:50%;transform:translateX(-50%) translateY(-16px);
-background:var(–surface2);color:var(–text);padding:10px 20px;
-border-radius:10px;font-size:13px;font-weight:500;z-index:200;
-opacity:0;transition:all 0.3s;pointer-events:none;border:1px solid var(–border);
+/* Show more button */
+.show-more-btn {
+display: block;
+width: 100%;
+padding: 10px 0;
+margin-top: 5px;
+border: 1px solid var(–border);
+border-radius: 10px;
+background-color: transparent;
+color: var(–text-dim);
+font-size: 12px;
+font-family: ‘Noto Sans SC’, sans-serif;
+-webkit-appearance: none;
 }
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.total-score.animating{animation:scorePulse 0.5s ease}
-@keyframes scorePulse{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
-
-/* Score flash overlay per row */
-.score-flash{
-position:absolute;inset:0;border-radius:var(–radius);
-pointer-events:none;opacity:0;
+.no-history {
+text-align: center;
+color: var(–text-dim);
+font-size: 13px;
+padding: 18px 0;
+opacity: 0.5;
 }
-.score-flash.positive{background:radial-gradient(ellipse at center,rgba(233,69,96,0.12),transparent 70%)}
-.score-flash.negative{background:radial-gradient(ellipse at center,rgba(46,204,113,0.12),transparent 70%)}
-.score-flash.show{animation:flashPulse 0.8s ease-out forwards}
-@keyframes flashPulse{0%{opacity:1}100%{opacity:0}}
+
+/* ===== NEW GAME ===== */
+.new-game-section {
+margin-top: 22px;
+padding-bottom: 20px;
+}
+.new-game-btn {
+display: block;
+width: 100%;
+padding: 14px 0;
+border: 1.5px solid rgba(255, 255, 255, 0.08);
+border-radius: var(–radius);
+background-color: transparent;
+color: var(–text-dim);
+font-size: 14px;
+font-weight: 500;
+font-family: ‘Noto Sans SC’, sans-serif;
+letter-spacing: 1px;
+-webkit-appearance: none;
+}
+
+/* ===== LETTER PICKER MODAL ===== */
+.modal-overlay {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background-color: rgba(0, 0, 0, 0.75);
+z-index: 100;
+display: none;
+align-items: flex-end;
+justify-content: center;
+-webkit-backdrop-filter: blur(6px);
+backdrop-filter: blur(6px);
+}
+.modal-overlay.active {
+display: flex;
+}
+.modal-sheet {
+background-color: var(–surface);
+border-radius: 20px 20px 0 0;
+width: 100%;
+max-width: 420px;
+padding: 20px 16px 36px 16px;
+animation: sheetUp 0.3s ease;
+}
+@keyframes sheetUp {
+from { transform: translateY(100%); }
+to { transform: translateY(0); }
+}
+.modal-title {
+font-size: 15px;
+font-weight: 700;
+text-align: center;
+margin-bottom: 16px;
+}
+.letter-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 8px;
+}
+.letter-option {
+aspect-ratio: 1 / 1;
+border: none;
+border-radius: 10px;
+background-color: rgba(255, 255, 255, 0.05);
+color: var(–text);
+font-family: ‘DM Mono’, monospace;
+font-size: 18px;
+font-weight: 500;
+display: flex;
+align-items: center;
+justify-content: center;
+-webkit-appearance: none;
+}
+.letter-option:active {
+transform: scale(0.92);
+}
+.letter-option.taken {
+opacity: 0.15;
+pointer-events: none;
+}
+.letter-option.current {
+background-color: var(–accent);
+color: #fff;
+}
+.modal-cancel {
+display: block;
+width: 100%;
+margin-top: 14px;
+padding: 12px 0;
+border: none;
+border-radius: 10px;
+background-color: rgba(255, 255, 255, 0.05);
+color: var(–text-dim);
+font-size: 14px;
+font-family: ‘Noto Sans SC’, sans-serif;
+-webkit-appearance: none;
+}
+
+/* ===== CONFIRM MODAL ===== */
+.confirm-modal {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background-color: rgba(0, 0, 0, 0.75);
+z-index: 100;
+display: none;
+align-items: center;
+justify-content: center;
+-webkit-backdrop-filter: blur(6px);
+backdrop-filter: blur(6px);
+}
+.confirm-modal.active {
+display: flex;
+}
+.confirm-box {
+background-color: var(–surface);
+border-radius: var(–radius);
+padding: 24px 20px;
+width: 300px;
+text-align: center;
+animation: popIn 0.25s ease;
+}
+@keyframes popIn {
+from { transform: scale(0.9); opacity: 0; }
+to { transform: scale(1); opacity: 1; }
+}
+.confirm-box h3 {
+font-size: 17px;
+margin-bottom: 8px;
+}
+.confirm-box p {
+font-size: 13px;
+color: var(–text-dim);
+margin-bottom: 20px;
+line-height: 1.6;
+}
+.confirm-actions {
+display: flex;
+gap: 10px;
+}
+.confirm-actions button {
+flex: 1;
+padding: 12px 0;
+border: none;
+border-radius: 10px;
+font-size: 14px;
+font-weight: 500;
+font-family: ‘Noto Sans SC’, sans-serif;
+-webkit-appearance: none;
+}
+.confirm-no {
+background-color: rgba(255, 255, 255, 0.06);
+color: var(–text);
+}
+.confirm-yes {
+background-color: var(–accent);
+color: #fff;
+}
+
+/* ===== TOAST ===== */
+.toast {
+position: fixed;
+top: 56px;
+left: 50%;
+transform: translateX(-50%) translateY(-16px);
+background-color: var(–surface2);
+color: var(–text);
+padding: 10px 20px;
+border-radius: 10px;
+font-size: 13px;
+font-weight: 500;
+z-index: 200;
+opacity: 0;
+transition: all 0.3s ease;
+pointer-events: none;
+border: 1px solid var(–border);
+white-space: nowrap;
+}
+.toast.show {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+
+/* Score animations */
+.total-score.animating {
+animation: scorePulse 0.5s ease;
+}
+@keyframes scorePulse {
+0% { transform: scale(1); }
+50% { transform: scale(1.18); }
+100% { transform: scale(1); }
+}
+
+/* Row flash on submit */
+.score-flash {
+position: absolute;
+top: 0; left: 0; right: 0; bottom: 0;
+border-radius: 0;
+pointer-events: none;
+opacity: 0;
+}
+.score-flash.pos { background: radial-gradient(ellipse at center, rgba(233, 69, 96, 0.15), transparent 70%); }
+.score-flash.neg { background: radial-gradient(ellipse at center, rgba(46, 204, 113, 0.15), transparent 70%); }
+.score-flash.show {
+animation: flashPulse 0.8s ease-out forwards;
+}
+@keyframes flashPulse {
+0% { opacity: 1; }
+100% { opacity: 0; }
+}
 </style>
 
 </head>
 <body>
+
 <div class="container">
   <div class="header"><h1>打牌计分器</h1></div>
 
   <div class="score-table">
-    <div class="table-header"><span>玩家 / 总分</span><span>本轮得分</span></div>
+    <div class="table-header">
+      <span>玩家 / 总分</span>
+      <span>本轮得分</span>
+    </div>
     <div id="playerRows"></div>
   </div>
 
   <div class="submit-section">
-    <button class="submit-btn" id="submitBtn" onclick="submitScores(event)">提交分数</button>
+    <button type="button" class="submit-btn" id="submitBtn" onclick="submitScores(event)">提交分数</button>
   </div>
 
   <div class="history-section">
-    <div class="history-title"><span>历史轮次</span><span id="roundCount"></span></div>
-    <div id="historyList" class="history-list"><div class="no-history">暂无记录</div></div>
-    <button class="show-more-btn" id="showMoreBtn" style="display:none" onclick="toggleShowAll()">显示全部</button>
+    <div class="history-title">
+      <span>历史轮次</span>
+      <span id="roundCount"></span>
+    </div>
+    <div id="historyList" class="history-list">
+      <div class="no-history">暂无记录</div>
+    </div>
+    <button type="button" class="show-more-btn" id="showMoreBtn" style="display:none" onclick="toggleShowAll()">显示全部</button>
   </div>
 
   <div class="new-game-section">
-    <button class="new-game-btn" onclick="confirmNewGame()">新开一局</button>
+    <button type="button" class="new-game-btn" onclick="confirmNewGame()">新开一局</button>
   </div>
 </div>
 
 <canvas id="confettiCanvas"></canvas>
 
+<!-- Letter Picker -->
+
 <div class="modal-overlay" id="letterModal">
   <div class="modal-sheet">
     <div class="modal-title">选择字母</div>
     <div class="letter-grid" id="letterGrid"></div>
-    <button class="modal-cancel" onclick="closeLetterModal()">取消</button>
+    <button type="button" class="modal-cancel" onclick="closeLetterModal()">取消</button>
   </div>
 </div>
+
+<!-- Confirm Dialog -->
 
 <div class="confirm-modal" id="confirmModal">
   <div class="confirm-box">
     <h3>新开一局</h3>
     <p>确定要清零所有分数吗？<br>玩家字母将保留。</p>
     <div class="confirm-actions">
-      <button class="confirm-no" onclick="closeConfirm()">取消</button>
-      <button class="confirm-yes" onclick="startNewGame()">确定</button>
+      <button type="button" class="confirm-no" onclick="closeConfirm()">取消</button>
+      <button type="button" class="confirm-yes" onclick="startNewGame()">确定</button>
     </div>
   </div>
 </div>
@@ -298,324 +672,556 @@ pointer-events:none;opacity:0;
 <div class="toast" id="toast"></div>
 
 <script>
-const COLORS=['p0','p1','p2','p3'];
-const BG_COLORS=[
-  'linear-gradient(140deg,#ff6b81,#c0392b)',
-  'linear-gradient(140deg,#54a0ff,#2471a3)',
-  'linear-gradient(140deg,#5fd68d,#27ae60)',
-  'linear-gradient(140deg,#feca57,#d68910)'
+// ===== CONSTANTS =====
+var COLORS = ['p0', 'p1', 'p2', 'p3'];
+var BG_COLORS = [
+  'linear-gradient(140deg, #ff6b81, #c0392b)',
+  'linear-gradient(140deg, #54a0ff, #2471a3)',
+  'linear-gradient(140deg, #5fd68d, #27ae60)',
+  'linear-gradient(140deg, #feca57, #d68910)'
 ];
 
-let players=JSON.parse(localStorage.getItem('cardPlayers'))||['A','B','C','D'];
-let totals=[0,0,0,0],currentScores=[0,0,0,0],rounds=[];
-let showAll=false,editingPlayer=-1;
-let autoCalcIndex=-1,userTouched=[false,false,false,false],autoCalcLocked=false;
+// ===== STATE =====
+var players = JSON.parse(localStorage.getItem('cardPlayers')) || ['A', 'B', 'C', 'D'];
+var totals = [0, 0, 0, 0];
+var currentScores = [0, 0, 0, 0];
+var rounds = [];
+var showAll = false;
+var editingPlayer = -1;
+var autoCalcIndex = -1;
+var userTouched = [false, false, false, false];
+var autoCalcLocked = false;
 
-function init(){
-  const s=localStorage.getItem('cardGameState');
-  if(s){const d=JSON.parse(s);totals=d.totals||[0,0,0,0];rounds=d.rounds||[];}
-  renderPlayers();renderHistory();
+// ===== INIT =====
+function init() {
+  var s = localStorage.getItem('cardGameState');
+  if (s) {
+    var d = JSON.parse(s);
+    totals = d.totals || [0, 0, 0, 0];
+    rounds = d.rounds || [];
+  }
+  renderPlayers();
+  renderHistory();
 }
-function saveState(){
-  localStorage.setItem('cardPlayers',JSON.stringify(players));
-  localStorage.setItem('cardGameState',JSON.stringify({totals,rounds}));
+
+function saveState() {
+  localStorage.setItem('cardPlayers', JSON.stringify(players));
+  localStorage.setItem('cardGameState', JSON.stringify({ totals: totals, rounds: rounds }));
 }
 
-function renderPlayers(){
-  const c=document.getElementById('playerRows');c.innerHTML='';
-  for(let i=0;i<4;i++){
-    const row=document.createElement('div');
-    row.className='player-row';row.id=`row-${i}`;row.style.position='relative';
+// ===== RENDER PLAYERS =====
+function renderPlayers() {
+  var c = document.getElementById('playerRows');
+  c.innerHTML = '';
 
-    // Left: avatar + total
-    const left=document.createElement('div');left.className='player-left';
-    const av=document.createElement('div');av.className=`avatar ${COLORS[i]}`;
-    av.textContent=players[i];av.onclick=()=>openLetterModal(i);
+  for (var i = 0; i < 4; i++) {
+    var row = document.createElement('div');
+    row.className = 'player-row';
+    row.id = 'row-' + i;
 
-    const td=document.createElement('div');
-    td.className=`total-score ${totals[i]>0?'positive':totals[i]<0?'negative':'zero'}`;
-    td.id=`total-${i}`;td.textContent=totals[i];
+    // Left group
+    var left = document.createElement('div');
+    left.className = 'player-left';
 
-    left.appendChild(av);left.appendChild(td);
+    var av = document.createElement('div');
+    av.className = 'avatar ' + COLORS[i];
+    av.textContent = players[i];
+    (function(idx) { av.onclick = function() { openLetterModal(idx); }; })(i);
+
+    var td = document.createElement('div');
+    td.className = 'total-score ' + (totals[i] > 0 ? 'positive' : totals[i] < 0 ? 'negative' : 'zero');
+    td.id = 'total-' + i;
+    td.textContent = totals[i];
+
+    left.appendChild(av);
+    left.appendChild(td);
 
     // Flash overlay
-    const flash=document.createElement('div');
-    flash.className='score-flash';flash.id=`flash-${i}`;
+    var flash = document.createElement('div');
+    flash.className = 'score-flash';
+    flash.id = 'flash-' + i;
 
     // Right: wheel
-    const wc=document.createElement('div');wc.className='wheel-cell';
-    const ww=document.createElement('div');ww.className='wheel-container';ww.id=`wheel-${i}`;
-    const ind=document.createElement('div');ind.className='wheel-indicator';
+    var wc = document.createElement('div');
+    wc.className = 'wheel-cell';
+
+    var ww = document.createElement('div');
+    ww.className = 'wheel-container';
+    ww.id = 'wheel-' + i;
+
+    var ind = document.createElement('div');
+    ind.className = 'wheel-indicator';
     ww.appendChild(ind);
-    const tk=document.createElement('div');tk.className='wheel-track';tk.id=`track-${i}`;
-    for(let v=10;v>=-10;v--){
-      const it=document.createElement('div');it.className='wheel-item';it.dataset.value=v;
-      if(v>0){it.textContent=`+${v}`;it.style.color='var(--red)';}
-      else if(v<0){it.textContent=`${v}`;it.style.color='var(--green)';}
-      else{it.textContent='0';it.style.color='var(--text-dim)';}
+
+    var tk = document.createElement('div');
+    tk.className = 'wheel-track';
+    tk.id = 'track-' + i;
+
+    for (var v = 10; v >= -10; v--) {
+      var it = document.createElement('div');
+      it.className = 'wheel-item';
+      it.setAttribute('data-value', v);
+      if (v > 0) { it.textContent = '+' + v; it.style.color = 'var(--red)'; }
+      else if (v < 0) { it.textContent = '' + v; it.style.color = 'var(--green)'; }
+      else { it.textContent = '0'; it.style.color = 'var(--text-dim)'; }
       tk.appendChild(it);
     }
-    ww.appendChild(tk);wc.appendChild(ww);
 
-    row.appendChild(left);row.appendChild(wc);row.appendChild(flash);
+    ww.appendChild(tk);
+    wc.appendChild(ww);
+
+    row.appendChild(left);
+    row.appendChild(wc);
+    row.appendChild(flash);
     c.appendChild(row);
-    setupWheel(i);setWheelValue(i,0,false);
+
+    setupWheel(i);
+    setWheelValue(i, 0, false);
   }
+
   resetAutoCalc();
 }
 
-const IH=34,TI=21;
-function v2i(v){return 10-v}function i2v(i){return 10-i}
+// ===== WHEEL =====
+var IH = 34;
+var TI = 21;
 
-function setWheelValue(pi,value,anim=true){
-  const tk=document.getElementById(`track-${pi}`);
-  const ti=v2i(value),off=-(ti*IH)+IH;
-  tk.style.transition=anim?'transform 0.3s cubic-bezier(0.22,1,0.36,1)':'none';
-  tk.style.transform=`translateY(${off}px)`;
-  currentScores[pi]=value;
-  tk.querySelectorAll('.wheel-item').forEach((it,idx)=>{
-    it.classList.remove('active','adjacent');
-    if(idx===ti)it.classList.add('active');
-    else if(Math.abs(idx-ti)===1)it.classList.add('adjacent');
+function v2i(v) { return 10 - v; }
+function i2v(i) { return 10 - i; }
+
+function setWheelValue(pi, value, anim) {
+  var tk = document.getElementById('track-' + pi);
+  var ti = v2i(value);
+  var off = -(ti * IH) + IH;
+  tk.style.transition = anim ? 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
+  tk.style.transform = 'translateY(' + off + 'px)';
+  currentScores[pi] = value;
+
+  var items = tk.querySelectorAll('.wheel-item');
+  for (var j = 0; j < items.length; j++) {
+    items[j].classList.remove('active', 'adjacent');
+    if (j === ti) items[j].classList.add('active');
+    else if (Math.abs(j - ti) === 1) items[j].classList.add('adjacent');
+  }
+}
+
+function setupWheel(pi) {
+  var wh = document.getElementById('wheel-' + pi);
+  var sY = 0, sO = 0, drag = false, lY = 0, vel = 0, lT = 0;
+
+  function gO() {
+    var t = document.getElementById('track-' + pi).style.transform;
+    var m = t.match(/translateY\((.+?)px\)/);
+    return m ? parseFloat(m[1]) : IH;
+  }
+
+  function onS(y) {
+    drag = true; sY = y; sO = gO(); vel = 0; lY = y; lT = Date.now();
+    document.getElementById('track-' + pi).style.transition = 'none';
+  }
+
+  function onM(y) {
+    if (!drag) return;
+    var n = Date.now(), dt = n - lT;
+    if (dt > 0) vel = (y - lY) / dt;
+    lY = y; lT = n;
+
+    var nO = sO + (y - sY);
+    var tk = document.getElementById('track-' + pi);
+    tk.style.transform = 'translateY(' + nO + 'px)';
+
+    var ri = -(nO - IH) / IH;
+    var ni = Math.round(ri);
+    var items = tk.querySelectorAll('.wheel-item');
+    for (var j = 0; j < items.length; j++) {
+      items[j].classList.remove('active', 'adjacent');
+      if (j === ni) items[j].classList.add('active');
+      else if (Math.abs(j - ni) === 1) items[j].classList.add('adjacent');
+    }
+  }
+
+  function onE() {
+    if (!drag) return;
+    drag = false;
+
+    var mom = vel * 120;
+    var po = gO() + mom;
+    var ri = -(po - IH) / IH;
+    var si = Math.round(ri);
+    si = Math.max(0, Math.min(TI - 1, si));
+    setWheelValue(pi, i2v(si), true);
+
+    userTouched[pi] = true;
+
+    if (autoCalcIndex === pi) {
+      autoCalcLocked = true;
+      autoCalcIndex = -1;
+      var rows = document.querySelectorAll('.player-row');
+      for (var r = 0; r < rows.length; r++) rows[r].classList.remove('auto-highlighted');
+    }
+
+    if (!autoCalcLocked) checkAutoCalc();
+  }
+
+  wh.addEventListener('touchstart', function(e) { e.preventDefault(); onS(e.touches[0].clientY); }, { passive: false });
+  wh.addEventListener('touchmove', function(e) { e.preventDefault(); onM(e.touches[0].clientY); }, { passive: false });
+  wh.addEventListener('touchend', onE);
+
+  wh.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    onS(e.clientY);
+    function mv(ev) { onM(ev.clientY); }
+    function up() { onE(); document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); }
+    document.addEventListener('mousemove', mv);
+    document.addEventListener('mouseup', up);
   });
 }
 
-function setupWheel(pi){
-  const wh=document.getElementById(`wheel-${pi}`);
-  let sY=0,sO=0,drag=false,lY=0,vel=0,lT=0;
-  function gO(){const t=document.getElementById(`track-${pi}`).style.transform;const m=t.match(/translateY\((.+?)px\)/);return m?parseFloat(m[1]):IH;}
-  function onS(y){drag=true;sY=y;sO=gO();vel=0;lY=y;lT=Date.now();document.getElementById(`track-${pi}`).style.transition='none';}
-  function onM(y){
-    if(!drag)return;const n=Date.now(),dt=n-lT;if(dt>0)vel=(y-lY)/dt;lY=y;lT=n;
-    const nO=sO+(y-sY),tk=document.getElementById(`track-${pi}`);
-    tk.style.transform=`translateY(${nO}px)`;
-    const ri=-(nO-IH)/IH,ni=Math.round(ri);
-    tk.querySelectorAll('.wheel-item').forEach((it,idx)=>{
-      it.classList.remove('active','adjacent');
-      if(idx===ni)it.classList.add('active');
-      else if(Math.abs(idx-ni)===1)it.classList.add('adjacent');
-    });
-  }
-  function onE(){
-    if(!drag)return;drag=false;
-    const mom=vel*120,po=gO()+mom,ri=-(po-IH)/IH;
-    let si=Math.round(ri);si=Math.max(0,Math.min(TI-1,si));
-    setWheelValue(pi,i2v(si),true);
-    userTouched[pi]=true;
-    if(autoCalcIndex===pi){autoCalcLocked=true;autoCalcIndex=-1;document.querySelectorAll('.player-row').forEach(r=>r.classList.remove('auto-highlighted'));}
-    if(!autoCalcLocked)checkAutoCalc();
-  }
-  wh.addEventListener('touchstart',e=>{e.preventDefault();onS(e.touches[0].clientY);},{passive:false});
-  wh.addEventListener('touchmove',e=>{e.preventDefault();onM(e.touches[0].clientY);},{passive:false});
-  wh.addEventListener('touchend',onE);
-  wh.addEventListener('mousedown',e=>{
-    e.preventDefault();onS(e.clientY);
-    const mv=ev=>onM(ev.clientY);
-    const up=()=>{onE();document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
-    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
-  });
+// ===== AUTO CALC =====
+function resetAutoCalc() {
+  autoCalcIndex = -1;
+  autoCalcLocked = false;
+  userTouched = [false, false, false, false];
+  var rows = document.querySelectorAll('.player-row');
+  for (var r = 0; r < rows.length; r++) rows[r].classList.remove('auto-highlighted');
 }
 
-function resetAutoCalc(){
-  autoCalcIndex=-1;autoCalcLocked=false;userTouched=[false,false,false,false];
-  document.querySelectorAll('.player-row').forEach(r=>r.classList.remove('auto-highlighted'));
-}
-function checkAutoCalc(){
-  if(autoCalcLocked)return;
-  if(autoCalcIndex!==-1){document.getElementById(`row-${autoCalcIndex}`).classList.remove('auto-highlighted');autoCalcIndex=-1;}
-  const tc=userTouched.filter(Boolean).length;
-  if(tc===3){
-    const ui=userTouched.indexOf(false);if(ui===-1)return;
-    const sum=currentScores.reduce((a,b)=>a+b,0);
-    const av=currentScores[ui]-sum;
-    if(av>=-10&&av<=10){
-      autoCalcIndex=ui;setWheelValue(ui,av,true);
-      document.getElementById(`row-${ui}`).classList.add('auto-highlighted');
+function checkAutoCalc() {
+  if (autoCalcLocked) return;
+
+  if (autoCalcIndex !== -1) {
+    document.getElementById('row-' + autoCalcIndex).classList.remove('auto-highlighted');
+    autoCalcIndex = -1;
+  }
+
+  var tc = 0;
+  for (var i = 0; i < 4; i++) { if (userTouched[i]) tc++; }
+
+  if (tc === 3) {
+    var ui = -1;
+    for (var j = 0; j < 4; j++) { if (!userTouched[j]) { ui = j; break; } }
+    if (ui === -1) return;
+
+    var sum = 0;
+    for (var k = 0; k < 4; k++) sum += currentScores[k];
+    var av = currentScores[ui] - sum;
+
+    if (av >= -10 && av <= 10) {
+      autoCalcIndex = ui;
+      setWheelValue(ui, av, true);
+      document.getElementById('row-' + ui).classList.add('auto-highlighted');
     }
   }
 }
 
-// ===== SUBMIT with effects =====
-function submitScores(e){
-  const sum=currentScores.reduce((a,b)=>a+b,0);
-  if(sum!==0){showToast(`分数之和不为0（当前 ${sum>0?'+':''}${sum}）`);return;}
+// ===== SUBMIT =====
+function submitScores(e) {
+  var sum = 0;
+  for (var i = 0; i < 4; i++) sum += currentScores[i];
 
-  // Ripple effect on button
-  if(e){
-    const btn=document.getElementById('submitBtn');
-    const rect=btn.getBoundingClientRect();
-    const ripple=document.createElement('span');
-    ripple.className='ripple';
-    const size=Math.max(rect.width,rect.height);
-    ripple.style.width=ripple.style.height=size+'px';
-    ripple.style.left=(e.clientX||rect.left+rect.width/2)-rect.left-size/2+'px';
-    ripple.style.top=(e.clientY||rect.top+rect.height/2)-rect.top-size/2+'px';
-    btn.appendChild(ripple);
-    setTimeout(()=>ripple.remove(),600);
+  if (sum !== 0) {
+    showToast('分数之和不为0（当前 ' + (sum > 0 ? '+' : '') + sum + '）');
+    return;
   }
 
-  // Record
-  rounds.push([...currentScores]);
+  // Ripple
+  if (e) {
+    var btn = document.getElementById('submitBtn');
+    var rect = btn.getBoundingClientRect();
+    var ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    var size = Math.max(rect.width, rect.height);
+    ripple.style.width = size + 'px';
+    ripple.style.height = size + 'px';
+    var cx = (e.clientX || (rect.left + rect.width / 2));
+    var cy = (e.clientY || (rect.top + rect.height / 2));
+    ripple.style.left = (cx - rect.left - size / 2) + 'px';
+    ripple.style.top = (cy - rect.top - size / 2) + 'px';
+    btn.appendChild(ripple);
+    setTimeout(function() { ripple.remove(); }, 600);
+  }
 
-  // Flash + animate totals
-  for(let i=0;i<4;i++){
-    const old=totals[i];totals[i]+=currentScores[i];
-    animateTotal(i,old,totals[i]);
+  // Record round
+  rounds.push(currentScores.slice());
 
-    // Row flash
-    const flash=document.getElementById(`flash-${i}`);
-    flash.className='score-flash'+(currentScores[i]>=0?' positive':' negative');
-    void flash.offsetWidth;
+  // Flash rows + animate totals
+  for (var j = 0; j < 4; j++) {
+    var oldT = totals[j];
+    totals[j] += currentScores[j];
+    animateTotal(j, oldT, totals[j]);
+
+    var flash = document.getElementById('flash-' + j);
+    flash.className = 'score-flash ' + (currentScores[j] >= 0 ? 'pos' : 'neg');
+    flash.offsetWidth; // force reflow
     flash.classList.add('show');
   }
 
-  // Confetti!
+  // Confetti
   launchConfetti();
 
   // Reset wheels
-  for(let i=0;i<4;i++)setWheelValue(i,0,true);
-  resetAutoCalc();saveState();renderHistory();
+  for (var k = 0; k < 4; k++) setWheelValue(k, 0, true);
+  resetAutoCalc();
+  saveState();
+  renderHistory();
 }
 
-function animateTotal(idx,from,to){
-  const el=document.getElementById(`total-${idx}`);el.classList.add('animating');
-  const dur=500,st=performance.now();
-  function step(t){
-    const p=Math.min((t-st)/dur,1),ease=1-Math.pow(1-p,3),c=Math.round(from+(to-from)*ease);
-    el.textContent=c;el.className=`total-score animating ${c>0?'positive':c<0?'negative':'zero'}`;
-    if(p<1)requestAnimationFrame(step);else el.classList.remove('animating');
+function animateTotal(idx, from, to) {
+  var el = document.getElementById('total-' + idx);
+  el.classList.add('animating');
+  var dur = 500;
+  var st = performance.now();
+
+  function step(t) {
+    var p = Math.min((t - st) / dur, 1);
+    var ease = 1 - Math.pow(1 - p, 3);
+    var c = Math.round(from + (to - from) * ease);
+    el.textContent = c;
+    el.className = 'total-score animating ' + (c > 0 ? 'positive' : c < 0 ? 'negative' : 'zero');
+    if (p < 1) requestAnimationFrame(step);
+    else el.classList.remove('animating');
   }
   requestAnimationFrame(step);
 }
 
 // ===== CONFETTI =====
-function launchConfetti(){
-  const canvas=document.getElementById('confettiCanvas');
-  const ctx=canvas.getContext('2d');
-  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+function launchConfetti() {
+  var canvas = document.getElementById('confettiCanvas');
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-  const colors=['#e94560','#54a0ff','#5fd68d','#feca57','#ff6b81','#a29bfe','#fd79a8'];
-  const particles=[];
-  const count=60;
+  var colors = ['#e94560', '#54a0ff', '#5fd68d', '#feca57', '#ff6b81', '#a29bfe', '#fd79a8'];
+  var particles = [];
 
-  for(let i=0;i<count;i++){
+  for (var i = 0; i < 60; i++) {
     particles.push({
-      x:canvas.width/2+(Math.random()-0.5)*200,
-      y:canvas.height*0.45,
-      vx:(Math.random()-0.5)*12,
-      vy:-Math.random()*14-4,
-      w:Math.random()*8+4,
-      h:Math.random()*6+2,
-      color:colors[Math.floor(Math.random()*colors.length)],
-      rotation:Math.random()*360,
-      rotSpeed:(Math.random()-0.5)*12,
-      gravity:0.35,
-      opacity:1,
-      decay:0.008+Math.random()*0.008
+      x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+      y: canvas.height * 0.45,
+      vx: (Math.random() - 0.5) * 12,
+      vy: -Math.random() * 14 - 4,
+      w: Math.random() * 8 + 4,
+      h: Math.random() * 6 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12,
+      gravity: 0.35,
+      opacity: 1,
+      decay: 0.008 + Math.random() * 0.008
     });
   }
 
-  let raf;
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    let alive=false;
-    for(const p of particles){
-      if(p.opacity<=0)continue;
-      alive=true;
-      p.x+=p.vx;p.vy+=p.gravity;p.y+=p.vy;
-      p.rotation+=p.rotSpeed;p.opacity-=p.decay;
-      p.vx*=0.99;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var alive = false;
+
+    for (var j = 0; j < particles.length; j++) {
+      var p = particles[j];
+      if (p.opacity <= 0) continue;
+      alive = true;
+
+      p.x += p.vx;
+      p.vy += p.gravity;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.opacity -= p.decay;
+      p.vx *= 0.99;
 
       ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rotation*Math.PI/180);
-      ctx.globalAlpha=Math.max(0,p.opacity);
-      ctx.fillStyle=p.color;
-      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       ctx.restore();
     }
-    if(alive)raf=requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    if (alive) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
   draw();
 }
 
 // ===== HISTORY (newest first) =====
-function renderHistory(){
-  const c=document.getElementById('historyList'),cnt=document.getElementById('roundCount'),btn=document.getElementById('showMoreBtn');
-  if(!rounds.length){c.innerHTML='<div class="no-history">暂无记录</div>';cnt.textContent='';btn.style.display='none';return;}
-  cnt.textContent=`共 ${rounds.length} 轮`;
+function renderHistory() {
+  var c = document.getElementById('historyList');
+  var cnt = document.getElementById('roundCount');
+  var btn = document.getElementById('showMoreBtn');
 
-  // Show reversed (newest first), limit to 5 unless showAll
-  const reversed=[...rounds].map((r,i)=>({round:r,idx:i})).reverse();
-  const display=showAll?reversed:reversed.slice(0,5);
-  c.innerHTML='';
+  if (rounds.length === 0) {
+    c.innerHTML = '<div class="no-history">暂无记录</div>';
+    cnt.textContent = '';
+    btn.style.display = 'none';
+    return;
+  }
 
-  display.forEach((item,dispIdx)=>{
-    const {round,idx:actualIdx}=item;
-    const isNewest=actualIdx===rounds.length-1;
+  cnt.textContent = '共 ' + rounds.length + ' 轮';
 
-    const el=document.createElement('div');
-    el.className='history-item'+(isNewest?' newest':'');
+  // Build reversed list
+  var reversed = [];
+  for (var r = rounds.length - 1; r >= 0; r--) {
+    reversed.push({ round: rounds[r], idx: r });
+  }
+  var display = showAll ? reversed : reversed.slice(0, 5);
 
-    const rn=document.createElement('div');rn.className='history-round';rn.textContent=`R${actualIdx+1}`;
-    const sc=document.createElement('div');sc.className='history-scores';
+  c.innerHTML = '';
 
-    for(let i=0;i<4;i++){
-      const s=document.createElement('div');s.className='history-score-item';
-      const m=document.createElement('div');m.className='mini-avatar';m.style.background=BG_COLORS[i];m.textContent=players[i];
-      const v=document.createElement('span');
-      v.textContent=round[i]>0?`+${round[i]}`:round[i];
-      v.style.color=round[i]>0?'var(--red)':round[i]<0?'var(--green)':'var(--text-dim)';
-      s.appendChild(m);s.appendChild(v);sc.appendChild(s);
+  for (var d = 0; d < display.length; d++) {
+    var item = display[d];
+    var round = item.round;
+    var actualIdx = item.idx;
+    var isNewest = (actualIdx === rounds.length - 1);
+
+    var el = document.createElement('div');
+    el.className = 'history-item' + (isNewest ? ' newest' : '');
+
+    var rn = document.createElement('div');
+    rn.className = 'history-round';
+    rn.textContent = 'R' + (actualIdx + 1);
+
+    var sc = document.createElement('div');
+    sc.className = 'history-scores';
+
+    for (var i = 0; i < 4; i++) {
+      var si = document.createElement('div');
+      si.className = 'history-score-item';
+
+      var m = document.createElement('div');
+      m.className = 'mini-avatar';
+      m.style.background = BG_COLORS[i];
+      m.textContent = players[i];
+
+      var v = document.createElement('span');
+      v.textContent = round[i] > 0 ? '+' + round[i] : '' + round[i];
+      v.style.color = round[i] > 0 ? 'var(--red)' : round[i] < 0 ? 'var(--green)' : 'var(--text-dim)';
+
+      si.appendChild(m);
+      si.appendChild(v);
+      sc.appendChild(si);
     }
 
-    const ac=document.createElement('div');
-    if(isNewest){
-      const u=document.createElement('button');u.className='undo-btn';u.textContent='撤销';u.onclick=undoLast;ac.appendChild(u);
+    var ac = document.createElement('div');
+    if (isNewest) {
+      var u = document.createElement('button');
+      u.setAttribute('type', 'button');
+      u.className = 'undo-btn';
+      u.textContent = '撤销';
+      u.onclick = undoLast;
+      ac.appendChild(u);
     }
 
-    el.appendChild(rn);el.appendChild(sc);el.appendChild(ac);c.appendChild(el);
-  });
+    el.appendChild(rn);
+    el.appendChild(sc);
+    el.appendChild(ac);
+    c.appendChild(el);
+  }
 
-  btn.style.display=rounds.length>5?'block':'none';
-  btn.textContent=showAll?'收起':`显示全部（${rounds.length} 轮）`;
+  btn.style.display = rounds.length > 5 ? 'block' : 'none';
+  btn.textContent = showAll ? '收起' : '显示全部（' + rounds.length + ' 轮）';
 }
-function toggleShowAll(){showAll=!showAll;renderHistory();}
 
-function undoLast(){
-  if(!rounds.length)return;const last=rounds.pop();
-  for(let i=0;i<4;i++){const o=totals[i];totals[i]-=last[i];animateTotal(i,o,totals[i]);}
-  saveState();renderHistory();showToast('已撤销上一轮');
+function toggleShowAll() {
+  showAll = !showAll;
+  renderHistory();
+}
+
+function undoLast() {
+  if (rounds.length === 0) return;
+  var last = rounds.pop();
+  for (var i = 0; i < 4; i++) {
+    var o = totals[i];
+    totals[i] -= last[i];
+    animateTotal(i, o, totals[i]);
+  }
+  saveState();
+  renderHistory();
+  showToast('已撤销上一轮');
 }
 
 // ===== LETTER PICKER =====
-function openLetterModal(idx){
-  editingPlayer=idx;const g=document.getElementById('letterGrid');g.innerHTML='';
-  for(const ch of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'){
-    const b=document.createElement('button');b.className='letter-option';b.textContent=ch;
-    if(players.findIndex((p,i)=>p===ch&&i!==idx)!==-1)b.classList.add('taken');
-    if(players[idx]===ch)b.classList.add('current');
-    b.onclick=()=>selectLetter(ch);g.appendChild(b);
+function openLetterModal(idx) {
+  editingPlayer = idx;
+  var g = document.getElementById('letterGrid');
+  g.innerHTML = '';
+  var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  for (var c = 0; c < letters.length; c++) {
+    var ch = letters[c];
+    var b = document.createElement('button');
+    b.setAttribute('type', 'button');
+    b.className = 'letter-option';
+    b.textContent = ch;
+
+    var taken = false;
+    for (var j = 0; j < players.length; j++) {
+      if (players[j] === ch && j !== idx) { taken = true; break; }
+    }
+    if (taken) b.classList.add('taken');
+    if (players[idx] === ch) b.classList.add('current');
+
+    (function(letter) { b.onclick = function() { selectLetter(letter); }; })(ch);
+    g.appendChild(b);
   }
   document.getElementById('letterModal').classList.add('active');
 }
-function selectLetter(ch){players[editingPlayer]=ch;localStorage.setItem('cardPlayers',JSON.stringify(players));closeLetterModal();renderPlayers();renderHistory();}
-function closeLetterModal(){document.getElementById('letterModal').classList.remove('active')}
 
-function confirmNewGame(){document.getElementById('confirmModal').classList.add('active')}
-function closeConfirm(){document.getElementById('confirmModal').classList.remove('active')}
-function startNewGame(){
-  closeConfirm();totals=[0,0,0,0];rounds=[];showAll=false;saveState();
-  for(let i=0;i<4;i++){setWheelValue(i,0,true);const e=document.getElementById(`total-${i}`);e.textContent='0';e.className='total-score zero';}
-  resetAutoCalc();renderHistory();showToast('新一局开始');
+function selectLetter(ch) {
+  players[editingPlayer] = ch;
+  localStorage.setItem('cardPlayers', JSON.stringify(players));
+  closeLetterModal();
+  renderPlayers();
+  renderHistory();
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+function closeLetterModal() {
+  document.getElementById('letterModal').classList.remove('active');
+}
 
-document.getElementById('letterModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeLetterModal();});
-document.getElementById('confirmModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeConfirm();});
+// ===== NEW GAME =====
+function confirmNewGame() {
+  document.getElementById('confirmModal').classList.add('active');
+}
 
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('active');
+}
+
+function startNewGame() {
+  closeConfirm();
+  totals = [0, 0, 0, 0];
+  rounds = [];
+  showAll = false;
+  saveState();
+
+  for (var i = 0; i < 4; i++) {
+    setWheelValue(i, 0, true);
+    var e = document.getElementById('total-' + i);
+    e.textContent = '0';
+    e.className = 'total-score zero';
+  }
+  resetAutoCalc();
+  renderHistory();
+  showToast('新一局开始');
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+// ===== BACKDROP CLOSE =====
+document.getElementById('letterModal').addEventListener('click', function(e) {
+  if (e.target === e.currentTarget) closeLetterModal();
+});
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if (e.target === e.currentTarget) closeConfirm();
+});
+
+// ===== START =====
 init();
 </script>
 
