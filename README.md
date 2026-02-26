@@ -17,13 +17,9 @@
 
 ## 使用方法
 
-直接用浏览器打开 `index.html` 即可，无需安装任何依赖。
+直接访问 GitHub Pages 即可，无需安装任何依赖：
 
-```bash
-open index.html
-# 或在本地起一个静态服务
-npx serve .
-```
+**https://lingceng.github.io/scorecard/**
 
 ## 规则说明
 
