@@ -136,6 +136,8 @@ transition: transform 0.15s ease;
 .avatar.p1 { background: linear-gradient(140deg, #54a0ff, #2471a3) !important; }
 .avatar.p2 { background: linear-gradient(140deg, #5fd68d, #27ae60) !important; }
 .avatar.p3 { background: linear-gradient(140deg, #feca57, #d68910) !important; }
+.avatar.p4 { background: linear-gradient(140deg, #a29bfe, #6c5ce7) !important; }
+.avatar.p5 { background: linear-gradient(140deg, #fd9644, #e17055) !important; }
 
 .total-score {
 font-family: ‘DM Mono’, monospace;
@@ -240,10 +242,10 @@ border: 1px solid rgba(255, 255, 255, 0.05);
 .history-item.newest { animation: slideIn 0.35s ease; }
 @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .history-round { font-family: ‘DM Mono’, monospace; font-size: 11px; color: #6b7394; text-align: center; }
-.history-scores { display: flex; gap: 10px; }
+.history-scores { display: flex; gap: 6px; flex-wrap: wrap; }
 .history-score-item {
-display: flex; align-items: center; gap: 3px;
-font-family: ‘DM Mono’, monospace; font-size: 13px;
+display: flex; align-items: center; gap: 2px;
+font-family: ‘DM Mono’, monospace; font-size: 12px;
 }
 .history-score-item .mini-avatar {
 width: 18px; height: 18px; border-radius: 5px;
@@ -289,6 +291,37 @@ font-family: ‘Noto Sans SC’, sans-serif;
 .about-link { text-align: center; padding-bottom: 24px; }
 .about-link a { font-size: 12px; color: #3a3f5c; text-decoration: none; }
 .about-link a:hover { color: #6b7394; }
+
+/* ===== PLAYER MODE SELECTOR ===== */
+.mode-section { margin-top: 0; padding-bottom: 16px; }
+.mode-label { font-size: 11px; color: var(--text-dim); font-weight: 500; letter-spacing: 1.5px; margin-bottom: 8px; text-align: center; }
+.mode-segment {
+  display: flex;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.02);
+}
+.mode-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Noto Sans SC', sans-serif;
+  color: #6b7394 !important;
+  background-color: transparent !important;
+  transition: all 0.25s ease;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+.mode-option:last-child { border-right: none; }
+.mode-option.active {
+  background-color: rgba(233, 69, 96, 0.12) !important;
+  color: #e94560 !important;
+  font-weight: 700;
+}
 .new-game-btn {
 display: flex;
 align-items: center;
@@ -438,6 +471,15 @@ pointer-events: none; opacity: 0;
   <div class="new-game-section">
     <div class="new-game-btn" role="button" tabindex="0" onclick="confirmNewGame()">新开一局</div>
   </div>
+  <div class="mode-section">
+    <div class="mode-label">对局人数</div>
+    <div class="mode-segment" id="modeSegment">
+      <div class="mode-option" role="button" tabindex="0" data-count="3" onclick="switchPlayerCount(3)">3人</div>
+      <div class="mode-option active" role="button" tabindex="0" data-count="4" onclick="switchPlayerCount(4)">4人</div>
+      <div class="mode-option" role="button" tabindex="0" data-count="5" onclick="switchPlayerCount(5)">5人</div>
+      <div class="mode-option" role="button" tabindex="0" data-count="6" onclick="switchPlayerCount(6)">6人</div>
+    </div>
+  </div>
   <div class="about-link"><a href="./README">关于 / 帮助</a></div>
 </div>
 
@@ -469,38 +511,58 @@ pointer-events: none; opacity: 0;
 <div class="toast" id="toast"></div>
 
 <script>
-var COLORS = ['p0', 'p1', 'p2', 'p3'];
+var COLORS = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5'];
 var BG_COLORS = [
   'linear-gradient(140deg, #ff6b81, #c0392b)',
   'linear-gradient(140deg, #54a0ff, #2471a3)',
   'linear-gradient(140deg, #5fd68d, #27ae60)',
-  'linear-gradient(140deg, #feca57, #d68910)'
+  'linear-gradient(140deg, #feca57, #d68910)',
+  'linear-gradient(140deg, #a29bfe, #6c5ce7)',
+  'linear-gradient(140deg, #fd9644, #e17055)'
 ];
+var DEFAULT_PLAYERS = { 3: ['A','B','C'], 4: ['A','B','C','D'], 5: ['A','B','C','D','E'], 6: ['A','B','C','D','E','F'] };
+var SCORE_RANGE = { 3: 20, 4: 20, 5: 25, 6: 30 };
 
-var players = JSON.parse(localStorage.getItem('cardPlayers')) || ['A', 'B', 'C', 'D'];
-var totals = [0, 0, 0, 0];
-var currentScores = [0, 0, 0, 0];
-var rounds = [];
+var playerCount = parseInt(localStorage.getItem('cardPlayerCount')) || 4;
+var players = JSON.parse(localStorage.getItem('cardPlayers')) || DEFAULT_PLAYERS[playerCount].slice();
+var totals, currentScores, rounds, userTouched;
 var showAll = false;
 var editingPlayer = -1;
 var autoCalcIndex = -1;
-var userTouched = [false, false, false, false];
 var autoCalcLocked = false;
 
+function makeArray(n, val) { var a = []; for (var i = 0; i < n; i++) a.push(val); return a; }
+function getScoreRange() { return SCORE_RANGE[playerCount] || 20; }
+
 function init() {
+  totals = makeArray(playerCount, 0);
+  currentScores = makeArray(playerCount, 0);
+  userTouched = makeArray(playerCount, false);
+  rounds = [];
+  if (players.length !== playerCount) {
+    players = DEFAULT_PLAYERS[playerCount].slice();
+    localStorage.setItem('cardPlayers', JSON.stringify(players));
+  }
   var s = localStorage.getItem('cardGameState');
-  if (s) { var d = JSON.parse(s); totals = d.totals || [0,0,0,0]; rounds = d.rounds || []; }
+  if (s) {
+    var d = JSON.parse(s);
+    if (d.totals && d.totals.length === playerCount) { totals = d.totals; }
+    if (d.rounds && (d.rounds.length === 0 || (d.rounds[0] && d.rounds[0].length === playerCount))) { rounds = d.rounds; }
+  }
+  updateModeSegment();
   renderPlayers(); renderHistory();
 }
 
 function saveState() {
   localStorage.setItem('cardPlayers', JSON.stringify(players));
+  localStorage.setItem('cardPlayerCount', playerCount);
   localStorage.setItem('cardGameState', JSON.stringify({ totals: totals, rounds: rounds }));
 }
 
 function renderPlayers() {
   var c = document.getElementById('playerRows'); c.innerHTML = '';
-  for (var i = 0; i < 4; i++) {
+  var range = getScoreRange();
+  for (var i = 0; i < playerCount; i++) {
     var row = document.createElement('div');
     row.className = 'player-row'; row.id = 'row-' + i;
 
@@ -525,7 +587,7 @@ function renderPlayers() {
     var ww = document.createElement('div'); ww.className = 'wheel-container'; ww.id = 'wheel-' + i;
     var ind = document.createElement('div'); ind.className = 'wheel-indicator'; ww.appendChild(ind);
     var tk = document.createElement('div'); tk.className = 'wheel-track'; tk.id = 'track-' + i;
-    for (var v = 20; v >= -20; v--) {
+    for (var v = range; v >= -range; v--) {
       var it = document.createElement('div'); it.className = 'wheel-item';
       it.setAttribute('data-value', v);
       if (v > 0) { it.textContent = '+' + v; it.style.color = '#e94560'; }
@@ -541,11 +603,14 @@ function renderPlayers() {
   resetAutoCalc();
 }
 
-var IH = 34, TI = 41;
-function v2i(v) { return 20 - v; }
-function i2v(i) { return 20 - i; }
+var IH = 34;
+function getTI() { return getScoreRange() * 2 + 1; }
+function v2i(v) { return getScoreRange() - v; }
+function i2v(i) { return getScoreRange() - i; }
 
 function setWheelValue(pi, value, anim) {
+  var range = getScoreRange();
+  value = Math.max(-range, Math.min(range, value));
   var tk = document.getElementById('track-' + pi);
   var ti = v2i(value), off = -(ti * IH) + IH;
   tk.style.transition = anim ? 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)' : 'none';
@@ -591,7 +656,7 @@ function setupWheel(pi) {
     if (!drag) return; drag = false;
     var mom = vel * 120, po = gO() + mom, ri = -(po - IH) / IH;
     var si = Math.round(ri);
-    si = Math.max(0, Math.min(TI - 1, si));
+    si = Math.max(0, Math.min(getTI() - 1, si));
     setWheelValue(pi, i2v(si), true);
     userTouched[pi] = true;
     if (autoCalcIndex === pi) {
@@ -613,7 +678,7 @@ function setupWheel(pi) {
 }
 
 function resetAutoCalc() {
-  autoCalcIndex = -1; autoCalcLocked = false; userTouched = [false, false, false, false];
+  autoCalcIndex = -1; autoCalcLocked = false; userTouched = makeArray(playerCount, false);
   var rows = document.querySelectorAll('.player-row');
   for (var r = 0; r < rows.length; r++) rows[r].classList.remove('auto-highlighted');
 }
@@ -625,15 +690,16 @@ function checkAutoCalc() {
     autoCalcIndex = -1;
   }
   var tc = 0;
-  for (var i = 0; i < 4; i++) { if (userTouched[i]) tc++; }
-  if (tc === 3) {
+  for (var i = 0; i < playerCount; i++) { if (userTouched[i]) tc++; }
+  if (tc === playerCount - 1) {
     var ui = -1;
-    for (var j = 0; j < 4; j++) { if (!userTouched[j]) { ui = j; break; } }
+    for (var j = 0; j < playerCount; j++) { if (!userTouched[j]) { ui = j; break; } }
     if (ui === -1) return;
     var sum = 0;
-    for (var k = 0; k < 4; k++) sum += currentScores[k];
+    for (var k = 0; k < playerCount; k++) sum += currentScores[k];
     var av = currentScores[ui] - sum;
-    if (av >= -20 && av <= 20) {
+    var range = getScoreRange();
+    if (av >= -range && av <= range) {
       autoCalcIndex = ui;
       setWheelValue(ui, av, true);
       document.getElementById('row-' + ui).classList.add('auto-highlighted');
@@ -643,7 +709,7 @@ function checkAutoCalc() {
 
 function submitScores(e) {
   var sum = 0;
-  for (var i = 0; i < 4; i++) sum += currentScores[i];
+  for (var i = 0; i < playerCount; i++) sum += currentScores[i];
   if (sum !== 0) { showToast('分数之和不为0（当前 ' + (sum > 0 ? '+' : '') + sum + '）'); return; }
 
   // Ripple
@@ -663,7 +729,7 @@ function submitScores(e) {
   }
 
   rounds.push(currentScores.slice());
-  for (var j = 0; j < 4; j++) {
+  for (var j = 0; j < playerCount; j++) {
     var oldT = totals[j]; totals[j] += currentScores[j];
     animateTotal(j, oldT, totals[j]);
     var flash = document.getElementById('flash-' + j);
@@ -672,7 +738,7 @@ function submitScores(e) {
     flash.classList.add('show');
   }
   launchConfetti();
-  for (var k = 0; k < 4; k++) setWheelValue(k, 0, true);
+  for (var k = 0; k < playerCount; k++) setWheelValue(k, 0, true);
   resetAutoCalc(); saveState(); renderHistory();
 }
 
@@ -748,7 +814,7 @@ function renderHistory() {
     el.className = 'history-item' + (isNewest ? ' newest' : '');
     var rn = document.createElement('div'); rn.className = 'history-round'; rn.textContent = 'R' + (actualIdx + 1);
     var sc = document.createElement('div'); sc.className = 'history-scores';
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < playerCount; i++) {
       var si = document.createElement('div'); si.className = 'history-score-item';
       var m = document.createElement('div'); m.className = 'mini-avatar';
       m.style.background = BG_COLORS[i]; m.textContent = players[i];
@@ -774,7 +840,7 @@ function toggleShowAll() { showAll = !showAll; renderHistory(); }
 function undoLast() {
   if (rounds.length === 0) return;
   var last = rounds.pop();
-  for (var i = 0; i < 4; i++) { var o = totals[i]; totals[i] -= last[i]; animateTotal(i, o, totals[i]); }
+  for (var i = 0; i < playerCount; i++) { var o = totals[i]; totals[i] -= last[i]; animateTotal(i, o, totals[i]); }
   saveState(); renderHistory(); showToast('已撤销上一轮');
 }
 
@@ -808,8 +874,11 @@ function confirmNewGame() { document.getElementById('confirmModal').classList.ad
 function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); }
 
 function startNewGame() {
-  closeConfirm(); totals = [0, 0, 0, 0]; rounds = []; showAll = false; saveState();
-  for (var i = 0; i < 4; i++) {
+  closeConfirm();
+  totals = makeArray(playerCount, 0);
+  currentScores = makeArray(playerCount, 0);
+  rounds = []; showAll = false; saveState();
+  for (var i = 0; i < playerCount; i++) {
     setWheelValue(i, 0, true);
     var e = document.getElementById('total-' + i);
     e.textContent = '0'; e.className = 'total-score zero';
@@ -822,6 +891,28 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+function updateModeSegment() {
+  var opts = document.querySelectorAll('#modeSegment .mode-option');
+  for (var i = 0; i < opts.length; i++) {
+    opts[i].classList.toggle('active', parseInt(opts[i].getAttribute('data-count')) === playerCount);
+  }
+}
+
+function switchPlayerCount(count) {
+  if (count === playerCount) return;
+  playerCount = count;
+  players = DEFAULT_PLAYERS[playerCount].slice();
+  totals = makeArray(playerCount, 0);
+  currentScores = makeArray(playerCount, 0);
+  userTouched = makeArray(playerCount, false);
+  rounds = []; showAll = false;
+  autoCalcIndex = -1; autoCalcLocked = false;
+  updateModeSegment();
+  saveState();
+  renderPlayers(); renderHistory();
+  showToast(playerCount + '人模式 · 新一局开始');
 }
 
 document.getElementById('letterModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeLetterModal(); });
