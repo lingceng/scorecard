@@ -1,8 +1,3 @@
----
-layout: page
-title: 打牌计分器 - 使用说明
----
-
 # 打牌计分器
 
 一个简洁的移动端打牌（四人）记分工具，纯前端单页应用，无需后端，支持离线使用。
@@ -26,8 +21,8 @@ title: 打牌计分器 - 使用说明
 
 直接访问在线版本即可，无需安装任何依赖：
 
-- 主入口：**https://lingceng-scorecard.netlify.app/**
-- 备用入口：**https://lingceng.github.io/scorecard/**
+- 主入口：[https://lingceng-scorecard.netlify.app/](https://lingceng-scorecard.netlify.app/)
+- 备用入口：[https://lingceng.github.io/scorecard/](https://lingceng.github.io/scorecard/)
 
 ## 规则说明
 

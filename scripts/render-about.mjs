@@ -1,9 +1,41 @@
-<!DOCTYPE html>
+import { readFile, writeFile } from 'node:fs/promises';
+
+const README_PATH = new URL('../README.md', import.meta.url);
+const ABOUT_PATH = new URL('../about.html', import.meta.url);
+
+const readme = await readFile(README_PATH, 'utf8');
+const markdown = readme.replace(/^---\n[\s\S]*?\n---\n+/, '').trim();
+
+const titleMatch = markdown.match(/^#\s+(.+)$/m);
+const pageTitle = `${titleMatch ? titleMatch[1].trim() : '打牌计分器'} - 使用说明`;
+
+const response = await fetch('https://api.github.com/markdown', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'scorecard-about-generator',
+    ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}),
+  },
+  body: JSON.stringify({
+    text: markdown,
+    mode: 'gfm',
+    context: 'lingceng/scorecard',
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(`GitHub Markdown API failed: ${response.status} ${response.statusText}`);
+}
+
+const content = await response.text();
+
+const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ page.title }}</title>
+<title>${escapeHtml(pageTitle)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -38,7 +70,7 @@ header a:hover { color: #eaeaea; }
 h1 { font-size: 28px; font-weight: 900; margin: 28px 0 14px; }
 h2 { font-size: 18px; font-weight: 700; margin: 28px 0 10px; color: #eaeaea; }
 h3 { font-size: 15px; font-weight: 600; margin: 18px 0 6px; }
-p  { margin: 8px 0; color: #c5c9d6; font-size: 15px; }
+p { margin: 8px 0; color: #c5c9d6; font-size: 15px; }
 ul, ol { padding-left: 20px; margin: 8px 0; }
 li { margin: 4px 0; color: #c5c9d6; font-size: 15px; }
 strong { color: #eaeaea; }
@@ -49,7 +81,7 @@ code {
   border-radius: 4px;
   padding: 2px 6px;
   font-size: 13px;
-  font-family: 'DM Mono', monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 img {
   max-width: 100%;
@@ -57,7 +89,7 @@ img {
   margin: 16px 0;
   display: block;
 }
-hr { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 28px 0; }
+.container > :first-child { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -66,7 +98,19 @@ hr { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 28px 0;
     <h1>打牌计分器</h1>
     <a href="./">← 返回应用</a>
   </header>
-  {{ content }}
+  ${content}
 </div>
 </body>
 </html>
+`;
+
+await writeFile(ABOUT_PATH, `${html}\n`);
+
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}

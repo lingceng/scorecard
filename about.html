@@ -37,8 +37,9 @@ header a {
 header a:hover { color: #eaeaea; }
 h1 { font-size: 28px; font-weight: 900; margin: 28px 0 14px; }
 h2 { font-size: 18px; font-weight: 700; margin: 28px 0 10px; color: #eaeaea; }
-p  { margin: 8px 0; color: #c5c9d6; font-size: 15px; }
-ul { padding-left: 20px; margin: 8px 0; }
+h3 { font-size: 15px; font-weight: 600; margin: 18px 0 6px; }
+p { margin: 8px 0; color: #c5c9d6; font-size: 15px; }
+ul, ol { padding-left: 20px; margin: 8px 0; }
 li { margin: 4px 0; color: #c5c9d6; font-size: 15px; }
 strong { color: #eaeaea; }
 a { color: #e94560; text-decoration: none; }
@@ -56,9 +57,7 @@ img {
   margin: 16px 0;
   display: block;
 }
-.access-links a {
-  word-break: break-all;
-}
+.container > :first-child { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -67,43 +66,38 @@ img {
     <h1>打牌计分器</h1>
     <a href="./">← 返回应用</a>
   </header>
-
-  <h1>打牌计分器</h1>
-
-  <p>一个简洁的移动端打牌（四人）记分工具，纯前端单页应用，无需后端，支持离线使用。</p>
-
-  <img src="./demo.gif" alt="打牌计分器演示">
-
-  <h2>功能特性</h2>
-  <ul>
-    <li><strong>4 位玩家</strong>：每位玩家用字母标识（默认 A/B/C/D），点击头像可自定义字母</li>
-    <li><strong>滚轮输入分数</strong>：每人通过拖动滚轮选择本轮得分（范围 −20 ~ +20）</li>
-    <li><strong>自动补全</strong>：当 3 位玩家已拨好分数时，第 4 位自动计算（确保总和为 0）</li>
-    <li><strong>分数校验</strong>：提交前检查四人分数之和是否为 0，否则给出提示</li>
-    <li><strong>历史记录</strong>：展示每轮得分，默认显示最近 5 轮，支持展开全部</li>
-    <li><strong>撤销</strong>：可撤销最近一轮的提交</li>
-    <li><strong>新开一局</strong>：清零所有分数（保留玩家字母）</li>
-    <li><strong>本地持久化</strong>：游戏状态存储于 <code>localStorage</code>，刷新后恢复</li>
-    <li><strong>彩纸动画</strong>：每次提交分数触发庆祝彩纸效果</li>
-    <li><strong>移动端优化</strong>：触屏友好，支持 iOS Safe Area，深色主题</li>
-  </ul>
-
-  <h2>使用方法</h2>
-  <p>直接访问在线版本即可，无需安装任何依赖：</p>
-  <ul class="access-links">
-    <li>主入口：<a href="https://lingceng-scorecard.netlify.app/">https://lingceng-scorecard.netlify.app/</a></li>
-    <li>备用入口：<a href="https://lingceng.github.io/scorecard/">https://lingceng.github.io/scorecard/</a></li>
-  </ul>
-
-  <h2>规则说明</h2>
-  <p>每轮结束后，各玩家拨动对应滚轮选择得分，<strong>四人分数之和必须为 0</strong>，然后点击「提交分数」。若只拨了 3 位玩家的分数，第 4 位会自动高亮并填入对应值。</p>
-
-  <h2>技术栈</h2>
-  <ul>
-    <li>原生 HTML / CSS / JavaScript（无框架、无构建工具）</li>
-    <li><code>localStorage</code> 持久化</li>
-    <li>Google Fonts（DM Mono + Noto Sans SC）</li>
-  </ul>
+  <h1 dir="auto">打牌计分器</h1>
+<p dir="auto">一个简洁的移动端打牌（四人）记分工具，纯前端单页应用，无需后端，支持离线使用。</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="demo.gif"><img src="demo.gif" alt="demo" data-animated-image="" style="max-width: 100%;"></a></p>
+<h2 dir="auto">功能特性</h2>
+<ul dir="auto">
+<li><strong>4 位玩家</strong>：每位玩家用字母标识（默认 A/B/C/D），点击头像可自定义字母</li>
+<li><strong>滚轮输入分数</strong>：每人通过拖动滚轮选择本轮得分（范围 −20 ~ +20）</li>
+<li><strong>自动补全</strong>：当 3 位玩家已拨好分数时，第 4 位自动计算（确保总和为 0）</li>
+<li><strong>分数校验</strong>：提交前检查四人分数之和是否为 0，否则给出提示</li>
+<li><strong>历史记录</strong>：展示每轮得分，默认显示最近 5 轮，支持展开全部</li>
+<li><strong>撤销</strong>：可撤销最近一轮的提交</li>
+<li><strong>新开一局</strong>：清零所有分数（保留玩家字母）</li>
+<li><strong>本地持久化</strong>：游戏状态存储于 <code class="notranslate">localStorage</code>，刷新后恢复</li>
+<li><strong>彩纸动画</strong>：每次提交分数触发庆祝彩纸效果</li>
+<li><strong>移动端优化</strong>：触屏友好，支持 iOS Safe Area，深色主题</li>
+</ul>
+<h2 dir="auto">使用方法</h2>
+<p dir="auto">直接访问在线版本即可，无需安装任何依赖：</p>
+<ul dir="auto">
+<li>主入口：<a href="https://lingceng-scorecard.netlify.app/" rel="nofollow">https://lingceng-scorecard.netlify.app/</a></li>
+<li>备用入口：<a href="https://lingceng.github.io/scorecard/" rel="nofollow">https://lingceng.github.io/scorecard/</a></li>
+</ul>
+<h2 dir="auto">规则说明</h2>
+<p dir="auto">每轮结束后，各玩家拨动对应滚轮选择得分，<strong>四人分数之和必须为 0</strong>，然后点击「提交分数」。<br>
+若只拨了 3 位玩家的分数，第 4 位会自动高亮并填入对应值。</p>
+<h2 dir="auto">技术栈</h2>
+<ul dir="auto">
+<li>原生 HTML / CSS / JavaScript（无框架、无构建工具）</li>
+<li><code class="notranslate">localStorage</code> 持久化</li>
+<li>Google Fonts（DM Mono + Noto Sans SC）</li>
+</ul>
 </div>
 </body>
 </html>
+
