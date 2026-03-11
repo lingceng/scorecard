@@ -24,9 +24,10 @@ title: 打牌计分器 - 使用说明
 
 ## 使用方法
 
-直接访问 GitHub Pages 即可，无需安装任何依赖：
+直接访问在线版本即可，无需安装任何依赖：
 
-**https://lingceng.github.io/scorecard/**
+- 主入口：**https://lingceng-scorecard.netlify.app/**
+- 备用入口：**https://lingceng.github.io/scorecard/**
 
 ## 规则说明
 
