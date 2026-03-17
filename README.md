@@ -1,4 +1,4 @@
-# 打牌计分器
+# 科科打牌记分器
 
 一个简洁的移动端打牌（四人）记分工具，纯前端单页应用，无需后端，支持离线使用。
 
@@ -23,6 +23,7 @@
 
 - 主入口：[https://lingceng-scorecard.netlify.app/](https://lingceng-scorecard.netlify.app/)
 - 备用入口：[https://lingceng.github.io/scorecard/](https://lingceng.github.io/scorecard/)
+- 微信小程序：搜索「科科打牌记分器」
 
 ## 规则说明
 
