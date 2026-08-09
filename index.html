@@ -47,8 +47,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .brand p { margin-top: 2px; color: var(--muted); font-size: 10px; letter-spacing: .18em; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,.035);
-  border: 1px solid var(--line); color: var(--muted); display: grid; place-items: center; font-size: 18px;
+  border: 1px solid var(--line); color: var(--muted); display: flex; align-items: center; justify-content: center; padding: 0; line-height: 0;
 }
+.icon-btn svg { display: block; width: 18px; height: 18px; stroke: currentColor; }
 .icon-btn:active { transform: scale(.94); }
 
 .score-table { overflow: hidden; background: rgba(18,17,29,.9); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 18px 48px rgba(0,0,0,.22); }
@@ -114,11 +115,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .mini-avatar { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 7px; background: var(--avatar); border: 1px solid rgba(255,255,255,.09); color: white; font-family: "Noto Sans SC", sans-serif; font-size: 9px; line-height: 1; }
 .history-score-item .value { width: 3.3ch; text-align: left; }
 .undo-btn { width: 40px; height: 28px; border-radius: 8px; background: transparent; border: 1px solid rgba(255,100,124,.18); color: var(--coral); font-size: 10px; }
-.show-more-btn, .new-game-btn { width: 100%; margin-top: 8px; padding: 12px; border-radius: 12px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.show-more-btn { width: 100%; margin-top: 8px; padding: 12px; border-radius: 12px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .no-history { padding: 26px 0; text-align: center; color: #686276; font-size: 12px; }
-.new-game-section { margin-top: 18px; }
-.about-link { padding: 16px 0; text-align: center; }
-.about-link a { color: #4d485c; font-size: 11px; text-decoration: none; }
 
 .modal { position: fixed; z-index: 500; inset: 0; display: none; align-items: flex-end; justify-content: center; background: rgba(4,3,8,.78); backdrop-filter: blur(9px); }
 .modal.active { display: flex; }
@@ -149,45 +147,68 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .identity-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .identity-item { min-height: 44px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--line); font-size: 13px; }
 .confirm-copy { color: var(--muted); font-size: 12px; line-height: 1.7; text-align: center; margin: -5px 0 14px; }
+.setting-controls { display: flex; align-items: center; gap: 8px; }
+.preview-btn { height: 28px; padding: 0 9px; border-radius: 8px; background: rgba(246,189,99,.09); border: 1px solid rgba(246,189,99,.18); color: var(--amber); font-size: 10px; }
+.settings-menu { display: flex; flex-direction: column; gap: 8px; }
+.menu-row { width: 100%; min-height: 50px; padding: 0 13px; display: flex; align-items: center; gap: 11px; border-radius: 13px; background: rgba(255,255,255,.035); border: 1px solid var(--line); color: var(--text); text-decoration: none; text-align: left; }
+.menu-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; background: rgba(255,255,255,.05); font-size: 14px; }
+.menu-copy { flex: 1; }
+.menu-copy b { display: block; font-size: 13px; }
+.menu-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+.menu-arrow { color: #656073; font-size: 16px; }
 
-.settlement { position: fixed; z-index: 900; inset: 0; display: none; overflow-x: hidden; overflow-y: auto; padding: 16px 0; background: rgba(7,6,13,.94); backdrop-filter: blur(14px); }
+.settlement { position: fixed; z-index: 900; inset: 0; display: none; padding: 16px 0; background: rgba(7,6,13,.18); backdrop-filter: blur(2px) saturate(.9); pointer-events: none; }
 .settlement.active { display: grid; place-items: center; }
-.settlement-panel { position: relative; z-index: 2; width: min(92vw,400px); min-height: 520px; min-height: min(560px, calc(100dvh - 32px)); padding: 28px 20px 22px; display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(255,255,255,.1); border-radius: 30px; background: radial-gradient(circle at 50% 10%, rgba(246,189,99,.11), transparent 32%), #12101c; box-shadow: 0 28px 80px rgba(0,0,0,.48); animation: settlementIn .45s cubic-bezier(.16,1,.3,1); }
-@keyframes settlementIn { from { opacity: 0; transform: translateY(18px) scale(.95); } }
-.settlement-kicker { color: var(--amber); font: 500 11px/1 "DM Mono", monospace; letter-spacing: .18em; }
-.settlement-title { margin-top: 10px; font-size: 34px; font-weight: 900; letter-spacing: -.05em; text-align: center; }
-.settlement-copy { min-height: 38px; margin-top: 8px; color: #aaa4b8; font-size: 12px; line-height: 1.6; text-align: center; }
-.winner-stack { width: 100%; margin-top: 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.result-card { min-width: 88px; padding: 10px; text-align: center; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); border-radius: 18px; }
-.result-card.winner { min-width: 72px; border-color: rgba(246,189,99,.28); box-shadow: 0 0 32px rgba(246,189,99,.08); animation: winnerFloat 2.2s ease-in-out infinite; }
-@keyframes winnerFloat { 50% { transform: translateY(-6px); } }
-.result-avatar { width: 52px; height: 52px; margin: 0 auto 6px; display: grid; place-items: center; border-radius: 16px; background: var(--avatar); border: 1px solid rgba(255,255,255,.13); font-size: 24px; }
-.result-score { color: var(--coral); font: 500 18px/1 "DM Mono", monospace; }
-.transfer-zone { position: relative; width: 100%; height: 74px; overflow: hidden; }
-.transfer-line { position: absolute; left: 50%; top: 10px; width: 2px; height: 50px; background: linear-gradient(var(--amber), transparent); transform-origin: top; }
-.flying-token { position: absolute; left: calc(50% - 10px); top: 10px; font-size: 18px; animation: tokenDrop 1.3s ease-in infinite; }
-.flying-token:nth-child(2) { animation-delay: .35s; }
-.flying-token:nth-child(3) { animation-delay: .7s; }
-@keyframes tokenDrop { 0% { opacity: 0; transform: translateY(42px) scale(.7); } 35% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px) scale(1.15); } }
+.settlement.leaving { display: grid; animation: overlayOut .34s ease forwards; }
+.settlement-panel { position: relative; z-index: 2; width: min(92vw,390px); padding: 22px 18px 16px; overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(255,255,255,.13); border-radius: 26px; background: radial-gradient(circle at 50% 0%, rgba(246,189,99,.17), transparent 38%), rgba(15,13,24,.78); box-shadow: 0 22px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.07); backdrop-filter: blur(13px) saturate(1.15); animation: settlementIn .42s cubic-bezier(.16,1,.3,1); }
+.settlement-panel::before, .settlement-panel::after { content: ""; position: absolute; top: 0; width: 34%; height: 1px; background: linear-gradient(90deg,transparent,var(--amber)); }
+.settlement-panel::before { left: 0; }
+.settlement-panel::after { right: 0; transform: scaleX(-1); }
+@keyframes settlementIn { from { opacity: 0; transform: translateY(16px) scale(.9); filter: blur(5px); } 65% { transform: translateY(-2px) scale(1.015); } }
+@keyframes overlayOut { to { opacity: 0; transform: scale(1.035); } }
+.settlement-kicker { color: #d5cedd; font: 500 9px/1 "DM Mono", monospace; letter-spacing: .16em; opacity: .72; }
+.settlement-rank { margin-top: 9px; padding: 5px 12px; border: 1px solid rgba(246,189,99,.28); border-radius: 99px; background: rgba(246,189,99,.08); color: var(--amber); font: 500 11px/1 "DM Mono", monospace; letter-spacing: .16em; box-shadow: 0 0 22px rgba(246,189,99,.08); animation: rankPulse 1s ease-in-out infinite alternate; }
+@keyframes rankPulse { to { box-shadow: 0 0 30px rgba(246,189,99,.23); transform: scale(1.025); } }
+.settlement-title { position: relative; margin-top: 10px; font-size: 31px; font-weight: 900; letter-spacing: -.05em; line-height: 1.15; text-align: center; text-shadow: 0 5px 24px rgba(0,0,0,.42); }
+.settlement-title::before, .settlement-title::after { content: "◆"; margin: 0 8px; color: var(--amber); font-size: 8px; vertical-align: middle; opacity: .65; }
+.settlement-copy { min-height: 20px; margin-top: 7px; color: #b8b2c4; font-size: 11px; line-height: 1.55; text-align: center; }
+.winner-stack { width: 100%; margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
+.result-card { min-width: 78px; padding: 8px; text-align: center; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; backdrop-filter: blur(4px); }
+.result-card.winner { min-width: 68px; border-color: rgba(246,189,99,.4); background: radial-gradient(circle at 50% 30%,rgba(246,189,99,.14),rgba(255,255,255,.04)); box-shadow: 0 0 36px rgba(246,189,99,.14); animation: winnerFloat 1.15s ease-in-out infinite alternate; }
+@keyframes winnerFloat { to { transform: translateY(-5px) scale(1.03); } }
+.result-avatar { width: 45px; height: 45px; margin: 0 auto 5px; display: grid; place-items: center; border-radius: 15px; background: var(--avatar); border: 1px solid rgba(255,255,255,.15); font-size: 21px; }
+.result-score { color: var(--coral); font: 500 17px/1 "DM Mono", monospace; }
+.transfer-zone { position: relative; width: 100%; height: 46px; overflow: hidden; }
+.flying-token { position: absolute; left: calc(50% - 9px); top: 2px; color: var(--amber); font-size: 17px; text-shadow: 0 0 14px currentColor; animation: tokenRise 1s cubic-bezier(.2,.7,.2,1) infinite; }
+.flying-token:nth-child(2) { margin-left: -35px; animation-delay: .18s; }
+.flying-token:nth-child(3) { margin-left: 35px; animation-delay: .36s; }
+.flying-token:nth-child(4) { animation-delay: .54s; }
+@keyframes tokenRise { 0% { opacity: 0; transform: translateY(36px) scale(.55) rotate(-18deg); } 35% { opacity: 1; } 100% { opacity: 0; transform: translateY(-7px) scale(1.18) rotate(10deg); } }
 .loser-stack { display: flex; justify-content: center; gap: 7px; width: 100%; }
-.loser-stack .result-card { min-width: 0; flex: 1; padding: 9px 5px; }
-.loser-stack .result-avatar { width: 42px; height: 42px; font-size: 20px; border-radius: 14px; }
-.loser-stack .result-score { color: var(--mint); font-size: 14px; }
-.settlement-achievement { min-height: 24px; margin-top: 18px; padding: 6px 10px; border-radius: 99px; background: rgba(246,189,99,.08); color: var(--amber); font-size: 11px; }
-.continue-btn { width: 100%; height: 48px; margin-top: auto; border-radius: 14px; background: rgba(255,255,255,.07); border: 1px solid var(--line); font-weight: 650; }
+.loser-stack .result-card { min-width: 0; flex: 1; padding: 7px 4px; }
+.loser-stack .result-avatar { width: 36px; height: 36px; font-size: 17px; border-radius: 12px; opacity: .78; }
+.loser-stack .result-score { color: var(--mint); font-size: 13px; }
+.settlement-achievement { min-height: 23px; margin-top: 12px; padding: 6px 10px; border-radius: 99px; background: rgba(246,189,99,.1); border: 1px solid rgba(246,189,99,.12); color: var(--amber); font-size: 10px; }
+.auto-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255,255,255,.05); }
+.auto-progress::after { content: ""; display: block; height: 100%; background: linear-gradient(90deg,var(--amber),var(--coral)); transform-origin: left; animation: progressDrain var(--settlement-duration,2200ms) linear forwards; }
+@keyframes progressDrain { to { transform: scaleX(0); } }
 .weather { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .snow { position: absolute; top: -30px; color: var(--ice); opacity: .75; animation: snowfall linear infinite; }
 @keyframes snowfall { to { transform: translate3d(30px,110vh,0) rotate(180deg); } }
-.effect-epic .settlement-panel { background: radial-gradient(circle at 50% 18%, rgba(102,178,236,.18), transparent 34%), #10111b; box-shadow: 0 0 90px rgba(80,160,230,.14); }
-.effect-epic .settlement-title { color: #d9f0ff; text-shadow: 0 0 24px rgba(157,215,255,.25); }
-.effect-bomb .settlement-panel { background: radial-gradient(circle at 50% 16%, rgba(246,189,99,.18), transparent 36%), #151018; }
+.effect-epic .settlement-panel { background: radial-gradient(circle at 50% 10%, rgba(102,178,236,.26), transparent 40%), rgba(10,13,24,.76); box-shadow: 0 0 100px rgba(80,160,230,.23); }
+.effect-epic .settlement-title { color: #e4f5ff; text-shadow: 0 0 28px rgba(157,215,255,.42); }
+.effect-epic .settlement-rank { color: var(--ice); border-color: rgba(157,215,255,.35); background: rgba(157,215,255,.09); }
+.effect-bomb .settlement-panel { background: radial-gradient(circle at 50% 8%, rgba(255,166,77,.3), transparent 42%), rgba(24,12,15,.78); box-shadow: 0 0 100px rgba(255,112,52,.2); }
+.effect-bomb .settlement-rank { color: #ffd37d; border-color: rgba(255,174,73,.42); background: rgba(255,151,55,.12); }
 .effect-small .flying-token { font-size: 15px; }
-.effect-medium .transfer-zone { filter: drop-shadow(0 0 7px rgba(246,189,99,.2)); }
-.effect-large .settlement-panel { background: radial-gradient(circle at 50% 14%, rgba(255,100,124,.14), transparent 35%), #12101c; }
+.effect-medium .transfer-zone { filter: drop-shadow(0 0 8px rgba(246,189,99,.28)); }
+.effect-large .settlement-panel { background: radial-gradient(circle at 50% 8%, rgba(255,100,124,.23), transparent 42%), rgba(18,12,23,.77); box-shadow: 0 0 90px rgba(255,100,124,.2); }
 .effect-large .transfer-zone { filter: drop-shadow(0 0 12px rgba(255,100,124,.28)); }
 .effect-large .flying-token { font-size: 21px; animation-duration: .95s; }
-.gust { position: absolute; color: rgba(157,215,255,.45); font-size: 20px; animation: gustAcross 1.5s ease-in-out infinite; }
+.gust { position: absolute; color: rgba(157,215,255,.55); font-size: 20px; animation: gustAcross 1.2s ease-in-out infinite; }
+.spark { position: absolute; color: #ffd064; font-size: 13px; text-shadow: 0 0 12px currentColor; animation: sparkBurst 1.1s ease-out infinite; }
 @keyframes gustAcross { from { transform: translateX(-24vw) rotate(-8deg); opacity: 0; } 40% { opacity: .65; } to { transform: translateX(120vw) rotate(8deg); opacity: 0; } }
+@keyframes sparkBurst { from { opacity: 0; transform: translate(0,0) scale(.4); } 35% { opacity: 1; } to { opacity: 0; transform: translate(var(--sx),var(--sy)) scale(1.1) rotate(120deg); } }
 .toast { position: fixed; z-index: 1000; top: calc(54px + env(safe-area-inset-top)); left: 50%; max-width: calc(100vw - 36px); padding: 10px 16px; transform: translate(-50%,-14px); opacity: 0; border: 1px solid var(--line); border-radius: 12px; background: #252233; color: var(--text); font-size: 12px; white-space: nowrap; transition: .25s ease; pointer-events: none; }
 .toast.show { opacity: 1; transform: translate(-50%,0); }
 
@@ -210,7 +231,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
   <header class="appbar">
     <span></span>
     <div class="brand"><h1>科科打牌记分器</h1><p>今晚谁来收租</p></div>
-    <button class="icon-btn" type="button" aria-label="设置" onclick="openSettings()">⚙</button>
+    <button class="icon-btn" type="button" aria-label="设置" onclick="openSettings()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z" stroke-width="1.7"/><path d="M19.1 13.25c.05-.41.05-.84 0-1.25l1.48-1.15-1.7-2.95-1.74.72a7.8 7.8 0 0 0-1.08-.63L15.8 6.1h-3.4l-.26 1.89c-.38.18-.74.39-1.08.63L9.32 7.9l-1.7 2.95L9.1 12c-.05.41-.05.84 0 1.25L7.62 14.4l1.7 2.95 1.74-.72c.34.24.7.45 1.08.63l.26 1.89h3.4l.26-1.89c.38-.18.74-.39 1.08-.63l1.74.72 1.7-2.95-1.48-1.15Z" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
   </header>
 
   <section class="score-table" aria-label="玩家计分">
@@ -229,21 +250,20 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
     <button class="show-more-btn" type="button" id="showMoreBtn" hidden onclick="toggleShowAll()">显示全部</button>
   </section>
 
-  <div class="new-game-section"><button class="new-game-btn" type="button" onclick="openNewGameModal()">新局 / 改人数</button></div>
-  <div class="about-link"><a href="./about.html">关于 / 帮助</a></div>
 </main>
 
-<div class="settlement" id="settlement" role="dialog" aria-modal="true" aria-labelledby="settlementTitle">
+<div class="settlement" id="settlement" role="status" aria-live="assertive" aria-hidden="true">
   <div class="weather" id="weather"></div>
   <div class="settlement-panel">
     <div class="settlement-kicker" id="settlementKicker">ROUND SETTLED</div>
+    <div class="settlement-rank" id="settlementRank">DOMINATING</div>
     <h2 class="settlement-title" id="settlementTitle"></h2>
     <p class="settlement-copy" id="settlementCopy"></p>
     <div class="winner-stack" id="winnerStack"></div>
-    <div class="transfer-zone"><span class="flying-token">🪙</span><span class="flying-token">🪙</span><span class="flying-token">🪙</span></div>
+    <div class="transfer-zone" id="transferZone"></div>
     <div class="loser-stack" id="loserStack"></div>
     <div class="settlement-achievement" id="settlementAchievement"></div>
-    <button class="continue-btn" type="button" onclick="closeSettlement()">继续记分</button>
+    <div class="auto-progress"></div>
   </div>
 </div>
 
@@ -270,8 +290,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
   <div class="sheet">
     <div class="sheet-head"><h2 id="settingsTitle">牌桌设置</h2><button class="close-btn" type="button" onclick="closeModal('settingsModal')">✕</button></div>
     <div class="setting-row"><div class="setting-copy"><b>沉浸结算</b><span>显示收租关系、称号和天气效果</span></div><button class="switch" id="effectsSwitch" type="button" aria-label="切换沉浸结算" onclick="toggleSetting('effects')"></button></div>
-    <div class="setting-row"><div class="setting-copy"><b>结算音效</b><span>默认关闭，打开后仅在本机播放</span></div><button class="switch" id="soundSwitch" type="button" aria-label="切换结算音效" onclick="toggleSetting('sound')"></button></div>
+    <div class="setting-row"><div class="setting-copy"><b>结算音效</b><span>默认关闭，可先试听确认设备声音</span></div><div class="setting-controls"><button class="preview-btn" type="button" onclick="previewSound()">试听</button><button class="switch" id="soundSwitch" type="button" aria-label="切换结算音效" onclick="toggleSetting('sound')"></button></div></div>
     <div class="sheet-label">玩家标记</div><div class="identity-list" id="identityList"></div>
+    <div class="sheet-label">牌桌</div>
+    <div class="settings-menu">
+      <button class="menu-row" type="button" onclick="openNewGameFromSettings()"><span class="menu-icon">↻</span><span class="menu-copy"><b>新局 / 改人数</b><span>清空本局记录并重新选择人数</span></span><span class="menu-arrow">›</span></button>
+      <a class="menu-row" href="./about.html"><span class="menu-icon">?</span><span class="menu-copy"><b>关于 / 帮助</b><span>使用说明与项目入口</span></span><span class="menu-arrow">›</span></a>
+    </div>
   </div>
 </div>
 
@@ -300,6 +325,7 @@ if (typeof settings.effects !== 'boolean') settings.effects = true;
 if (typeof settings.sound !== 'boolean') settings.sound = false;
 var showAll = false, editingPlayer = -1, autoCalcIndex = -1, autoCalcLocked = false;
 var pendingCount = playerCount, bombWinner = 0, bombRate = 2, pendingRoundMeta = null;
+var settlementTimer = null, settlementExitTimer = null, soundHintShown = false;
 
 function readJSON(key, fallback) { try { var v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; } catch (e) { return fallback; } }
 function makeArray(n, val) { return Array.from({length:n}, function(){ return val; }); }
@@ -409,32 +435,43 @@ function animateTotal(idx,from,to){var el=document.getElementById('total-'+idx),
 function refreshPlayerTitles(){for(var i=0;i<playerCount;i++){var row=document.getElementById('row-'+i);if(row)row.querySelector('.player-title').textContent=getPlayerTitle(i);}}
 
 function getStreak(idx){var sign=0,count=0;for(var r=rounds.length-1;r>=0;r--){var v=getScores(rounds[r])[idx]||0,current=v>0?1:v<0?-1:0;if(!current)break;if(!sign)sign=current;if(current!==sign)break;count++;}return {sign:sign,count:count};}
+function getLossStreakBeforeLatest(idx){var count=0;for(var r=rounds.length-2;r>=0;r--){var v=getScores(rounds[r])[idx]||0;if(v<0)count++;else break;}return count;}
 function getBombWins(idx){var n=0;for(var i=0;i<roundMeta.length;i++)if(roundMeta[i]&&roundMeta[i].type==='bomb'&&roundMeta[i].winner===idx)n++;return n;}
-function getPlayerTitle(idx){var s=getStreak(idx),bombs=getBombWins(idx);if(s.sign>0&&s.count>=5)return '🔥 '+s.count+' 连胜 · 热手';if(s.sign>0&&s.count>=3)return '🔥 '+s.count+' 连胜';if(s.sign<0&&s.count>=5)return '🧊 '+s.count+' 连冷 · 蓄力中';if(s.sign<0&&s.count>=3)return '🌧 '+s.count+' 连冷';if(bombs>=3)return '💣 炸弹专家 ×'+bombs;return '';}
+function getBestRound(idx){var best=0;for(var r=0;r<rounds.length;r++)best=Math.max(best,getScores(rounds[r])[idx]||0);return best;}
+function getPlayerTitle(idx){var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),lead=rounds.length>=5&&totals[idx]===Math.max.apply(null,totals);if(s.sign>0&&s.count>=5)return '👑 LEGENDARY · '+s.count+'连胜';if(s.sign>0&&s.count===4)return '⚔ RAMPAGE · 四连';if(s.sign>0&&s.count===3)return '⚡ TRIPLE WIN';if(s.sign>0&&s.count===2)return '🔥 DOUBLE WIN';if(bombs>=5)return '💣 MEGA BOMBER ×'+bombs;if(bombs>=3)return '💣 爆破王牌 ×'+bombs;if(s.sign<0&&s.count>=5)return '🛡 COMEBACK READY';if(s.sign<0&&s.count>=3)return '↗ 逆风蓄力';if(best>=10)return '🎯 ACE · 单局+'+best;if(lead)return '◆ MVP · 当前领跑';return '';}
 function analyzeRound(scores,meta){
   var winners=[],losers=[];scores.forEach(function(v,i){if(v>0)winners.push(i);else if(v<0)losers.push(i);});
-  var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption;
-  if(meta&&meta.type==='bomb'){tier='bomb';title=meta.rate===4?'四倍炸弹开花':'双倍炸弹到账';caption=players[meta.winner]+' 向全桌统一收取，每人 '+meta.rate+' 分。';}
-  else if(winners.length>1){title=max>=8?'组团降温':'合伙收租';caption=winners.map(function(i){return players[i];}).join('、')+' 临时结盟，把本轮收益分走了。';}
-  else if(tier==='epic'){title='暴雪封桌';caption='一局拿走 '+max+' 分，其他人的手气暂时进入冷冻层。';}
-  else if(tier==='large'){title='全桌降温';caption='这笔 '+max+' 分的账，足够让牌桌安静三秒。';}
-  else if(tier==='medium'){title='稳稳收租';caption='不声不响拿下 '+max+' 分，今晚的复利开始了。';}
-  else {title='积少成多';caption='小账也是账，'+max+' 分先装进口袋。';}
-  if(winners.length===1&&PERSONA[players[winners[0]]])caption=PERSONA[players[winners[0]]];
-  var achievements=[];winners.forEach(function(i){var s=getStreak(i);if(s.count>=3)achievements.push(players[i]+' 解锁「'+s.count+' 连胜」');if(getBombWins(i)===3)achievements.push(players[i]+' 解锁「炸弹专家」');});
-  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,achievement:achievements.join(' · ')||'本轮账目已落袋'};
+  var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption,callout;
+  var winner=winners.length===1?winners[0]:-1,streak=winner>=0?getStreak(winner):{count:0},priorLoss=winner>=0?getLossStreakBeforeLatest(winner):0;
+  var beforeTotals=totals.map(function(v,i){return v-scores[i];}),wasLast=winner>=0&&rounds.length>3&&beforeTotals[winner]===Math.min.apply(null,beforeTotals);
+  if(meta&&meta.type==='bomb'){tier='bomb';callout=meta.rate===4?'MEGA BOMB':'DOUBLE CHARGE';title=meta.rate===4?'满屏爆金币':'双倍引爆';caption=players[meta.winner]+' 启动全桌收取，每人贡献 '+meta.rate+' 分。';}
+  else if(winners.length>1){callout=winners.length>=3?'TRIPLE SYNC':'DOUBLE SYNC';title=winners.length>=3?'三核联动':'双核联动';caption=winners.map(function(i){return players[i];}).join('、')+' 完成本轮联合接管。';}
+  else if(priorLoss>=3||wasLast&&max>=6){callout='CLUTCH';title='绝境翻盘';caption=players[winner]+' 从逆风位翻回牌桌，终结 '+Math.max(priorLoss,1)+' 轮低迷。';}
+  else if(tier==='epic'){callout='LEGENDARY';title='超神时刻';caption='单轮 +'+max+'，全桌进入高能预警。';}
+  else if(streak.count>=5){callout='LEGENDARY';title='传奇连胜';caption=players[winner]+' 已连续拿下 '+streak.count+' 轮。';}
+  else if(streak.count===4){callout='RAMPAGE';title='四连主宰';caption='节奏完全接管，连胜还在继续。';}
+  else if(streak.count===3){callout='TRIPLE WIN';title='三连制霸';caption='连续三轮得手，牌桌风向已经改变。';}
+  else if(streak.count===2){callout='DOUBLE WIN';title='双响连捷';caption='连续两轮进账，状态开始升温。';}
+  else if(tier==='large'){callout='UNSTOPPABLE';title='无人可挡';caption='单轮 +'+max+'，这一波节奏拉满。';}
+  else if(tier==='medium'){callout='DOMINATING';title='火力全开';caption='稳定拿下 +'+max+'，主动权正在扩大。';}
+  else {callout='FIRST SCORE';title='小试锋芒';caption='先拿 +'+max+'，优势从第一枚筹码开始。';}
+  if(winners.length===1&&PERSONA[players[winners[0]]])caption=PERSONA[players[winners[0]]]+' · '+caption;
+  var achievements=[];winners.forEach(function(i){var s=getStreak(i),bombs=getBombWins(i);if(s.count>=2)achievements.push('连胜 '+s.count+' ROUND');if(bombs===3)achievements.push('解锁 爆破王牌');if(bombs>=5)achievements.push('MEGA BOMBER ×'+bombs);});if(tier==='epic'&&losers.length===playerCount-1)achievements.push('ACE · 全桌清扫');if(priorLoss>=3)achievements.push('COMEBACK · 终结连冷');
+  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,achievement:achievements.join(' · ')||('MVP · '+(winner>=0?players[winner]:'本轮组合'))};
 }
 function resultCard(idx,score,winner){return '<div class="result-card '+(winner?'winner':'')+'"><div class="result-avatar">'+escapeHTML(players[idx])+'</div><div class="result-score">'+signed(score)+'</div></div>';}
 function showSettlement(scores,meta,a){
-  var root=document.getElementById('settlement');root.className='settlement active effect-'+a.tier;
-  document.getElementById('settlementKicker').textContent=meta&&meta.type==='bomb'?'BOMB BONUS':'ROUND '+rounds.length+' SETTLED';
-  document.getElementById('settlementTitle').textContent=a.title;document.getElementById('settlementCopy').textContent=a.caption;document.getElementById('settlementAchievement').textContent=a.achievement;
+  clearTimeout(settlementTimer);clearTimeout(settlementExitTimer);var root=document.getElementById('settlement'),duration=a.tier==='epic'?2800:a.tier==='bomb'?2600:a.tier==='large'?2400:a.tier==='medium'?2100:1800;root.className='settlement active effect-'+a.tier;root.setAttribute('aria-hidden','false');root.style.setProperty('--settlement-duration',duration+'ms');
+  document.getElementById('settlementKicker').textContent=meta&&meta.type==='bomb'?'BOMB EVENT':'ROUND '+rounds.length+' HIGHLIGHT';
+  document.getElementById('settlementRank').textContent=a.callout;document.getElementById('settlementTitle').textContent=a.title;document.getElementById('settlementCopy').textContent=a.caption;document.getElementById('settlementAchievement').textContent=a.achievement;
   document.getElementById('winnerStack').innerHTML=a.winners.map(function(i){return resultCard(i,scores[i],true);}).join('');
   document.getElementById('loserStack').innerHTML=a.losers.map(function(i){return resultCard(i,scores[i],false);}).join('');
-  var weather=document.getElementById('weather');weather.innerHTML='';if(a.tier==='epic'){for(var i=0;i<32;i++){var s=document.createElement('span');s.className='snow';s.textContent=i%3?'❄':'✦';s.style.left=Math.random()*100+'%';s.style.fontSize=(8+Math.random()*13)+'px';s.style.animationDuration=(2.2+Math.random()*2.5)+'s';s.style.animationDelay=(-Math.random()*4)+'s';weather.appendChild(s);}}else if(a.tier==='large'){for(var g=0;g<7;g++){var gust=document.createElement('span');gust.className='gust';gust.textContent=g%2?'〰':'≈';gust.style.top=(16+g*11)+'%';gust.style.animationDelay=(-g*.22)+'s';weather.appendChild(gust);}}
+  var transfer=document.getElementById('transferZone'),token=a.tier==='bomb'?'◆':a.tier==='epic'?'✦':'●';transfer.innerHTML='';for(var t=0;t<4;t++){var coin=document.createElement('span');coin.className='flying-token';coin.textContent=token;transfer.appendChild(coin);}
+  var weather=document.getElementById('weather');weather.innerHTML='';if(a.tier==='epic'){for(var i=0;i<34;i++){var s=document.createElement('span');s.className='snow';s.textContent=i%3?'❄':'✦';s.style.left=Math.random()*100+'%';s.style.fontSize=(8+Math.random()*13)+'px';s.style.animationDuration=(1.8+Math.random()*2.2)+'s';s.style.animationDelay=(-Math.random()*3)+'s';weather.appendChild(s);}}else if(a.tier==='large'){for(var g=0;g<8;g++){var gust=document.createElement('span');gust.className='gust';gust.textContent=g%2?'〰':'≈';gust.style.top=(12+g*11)+'%';gust.style.animationDelay=(-g*.18)+'s';weather.appendChild(gust);}}if(a.tier==='bomb'||a.tier==='medium'){for(var p=0;p<(a.tier==='bomb'?24:10);p++){var spark=document.createElement('span');spark.className='spark';spark.textContent=p%3?'✦':'◆';spark.style.left=(35+Math.random()*30)+'%';spark.style.top=(35+Math.random()*25)+'%';spark.style.setProperty('--sx',((Math.random()-.5)*280)+'px');spark.style.setProperty('--sy',((Math.random()-.5)*360)+'px');spark.style.animationDelay=(-Math.random())+'s';weather.appendChild(spark);}}
+  settlementTimer=setTimeout(function(){root.classList.remove('active');root.classList.add('leaving');settlementExitTimer=setTimeout(function(){closeSettlement();if(!settings.sound&&!soundHintShown){soundHintShown=true;showToast('🔇 结算音效默认关闭，可在设置里试听开启');}},340);},duration);
 }
-function closeSettlement(){document.getElementById('settlement').className='settlement';document.getElementById('weather').innerHTML='';}
-function playSettlementSound(tier){if(!settings.sound)return;try{var C=window.AudioContext||window.webkitAudioContext,ctx=new C(),notes=tier==='epic'?[392,523,659,784]:tier==='bomb'?[180,260,520]:[392,494,587];notes.forEach(function(freq,i){var osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=tier==='bomb'?'triangle':'sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.0001,ctx.currentTime+i*.11);gain.gain.exponentialRampToValueAtTime(.08,ctx.currentTime+i*.11+.02);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+i*.11+.32);osc.connect(gain).connect(ctx.destination);osc.start(ctx.currentTime+i*.11);osc.stop(ctx.currentTime+i*.11+.35);});setTimeout(function(){ctx.close();},900);}catch(e){}}
+function closeSettlement(){clearTimeout(settlementTimer);clearTimeout(settlementExitTimer);var root=document.getElementById('settlement');root.className='settlement';root.setAttribute('aria-hidden','true');document.getElementById('weather').innerHTML='';document.getElementById('transferZone').innerHTML='';}
+function playSettlementSound(tier,force){if(!settings.sound&&!force)return false;try{var C=window.AudioContext||window.webkitAudioContext,ctx=new C(),now=ctx.currentTime,master=ctx.createGain(),notes=tier==='epic'?[196,392,523,659,784]:tier==='bomb'?[110,165,330,660]:tier==='large'?[330,440,554,659]:tier==='medium'?[440,554,659]:[587,784];master.gain.setValueAtTime(.5,now);master.gain.exponentialRampToValueAtTime(.0001,now+1.35);master.connect(ctx.destination);if(ctx.state==='suspended')ctx.resume();notes.forEach(function(freq,i){var osc=ctx.createOscillator(),gain=ctx.createGain(),start=now+i*.1;osc.type=tier==='bomb'?'sawtooth':tier==='epic'?'triangle':'sine';osc.frequency.setValueAtTime(freq,start);if(tier==='bomb'&&i===0)osc.frequency.exponentialRampToValueAtTime(70,start+.38);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(i===0?.34:.22,start+.018);gain.gain.exponentialRampToValueAtTime(.0001,start+.46);osc.connect(gain).connect(master);osc.start(start);osc.stop(start+.5);});if(tier==='bomb'||tier==='epic'){var length=Math.floor(ctx.sampleRate*.42),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(var n=0;n<length;n++)data[n]=(Math.random()*2-1)*(1-n/length);var noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),noiseGain=ctx.createGain();noise.buffer=buffer;filter.type=tier==='bomb'?'lowpass':'highpass';filter.frequency.value=tier==='bomb'?520:1800;noiseGain.gain.setValueAtTime(.18,now);noiseGain.gain.exponentialRampToValueAtTime(.0001,now+.42);noise.connect(filter).connect(noiseGain).connect(master);noise.start(now);noise.stop(now+.43);}setTimeout(function(){ctx.close();},1600);return true;}catch(e){showToast('当前设备阻止了音效，请检查静音模式');return false;}}
 
 function renderHistory(){
   var root=document.getElementById('historyList'),count=document.getElementById('roundCount'),more=document.getElementById('showMoreBtn');
@@ -461,8 +498,10 @@ function updateSubmitMode(){var btn=document.getElementById('submitBtn');btn.cla
 
 function openSettings(){renderIdentityList();updateSettingsUI();openModal('settingsModal');}
 function renderIdentityList(){var root=document.getElementById('identityList');if(!root)return;root.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='identity-item';b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){closeModal('settingsModal');openIdentityModal(idx);};})(i);root.appendChild(b);}}
-function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'&&settings.sound)playSettlementSound('small');}
+function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'){if(settings.sound){showToast('🔊 音效已开启 · 正在试听');playSettlementSound('medium',true);}else showToast('🔇 音效已关闭');}}
+function previewSound(){showToast('🔊 试听：LEGENDARY');playSettlementSound('epic',true);}
 function updateSettingsUI(){var effects=document.getElementById('effectsSwitch'),sound=document.getElementById('soundSwitch');effects.classList.toggle('on',settings.effects);sound.classList.toggle('on',settings.sound);effects.setAttribute('aria-pressed',String(settings.effects));sound.setAttribute('aria-pressed',String(settings.sound));}
+function openNewGameFromSettings(){closeModal('settingsModal');openNewGameModal();}
 function openNewGameModal(){pendingCount=playerCount;renderCountPicker();openModal('newGameModal');}
 function renderCountPicker(){var root=document.getElementById('countPicker');root.innerHTML='';[3,4,5,6].forEach(function(n){var b=document.createElement('button');b.type='button';b.className='picker-option'+(n===pendingCount?' selected':'');b.textContent=n+' 人';b.onclick=function(){pendingCount=n;renderCountPicker();};root.appendChild(b);});}
 function startNewGame(){var previous=players.slice();playerCount=pendingCount;players=DEFAULT_PLAYERS[playerCount].map(function(v,i){return previous[i]||v;});totals=makeArray(playerCount,0);currentScores=makeArray(playerCount,0);rounds=[];roundMeta=[];showAll=false;pendingRoundMeta=null;saveState();closeModal('newGameModal');renderPlayers();renderHistory();updateSubmitMode();showToast(playerCount+' 人 · 新一局开始');}
