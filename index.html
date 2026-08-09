@@ -77,7 +77,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .rank-1 .rank-crown { color: #ffd76b; transform: rotate(5deg) scale(1.08); }
 .rank-2 .rank-crown { color: #c7d5e1; }
 .rank-3 .rank-crown { color: #d98d59; }
-.win-stamp { position: absolute; z-index: 6; right: -10px; bottom: 7px; width: 42px; height: 42px; display: grid; place-items: center; border: 3px double #ff7478; border-radius: 50%; background: radial-gradient(circle at 38% 32%,#c84954,#8d202e 72%); color: #fff0e7; font-size: 18px; font-weight: 900; line-height: 1; text-shadow: 0 2px 2px #541019; box-shadow: inset 0 0 0 2px rgba(255,218,207,.18); filter: drop-shadow(0 5px 0 #571019) drop-shadow(0 9px 8px rgba(44,5,12,.42)); transform: rotate(-11deg); animation: winStampIn .56s cubic-bezier(.16,1,.3,1) both; pointer-events: none; }
+.win-stamp { position: absolute; z-index: 6; right: -10px; bottom: 7px; width: 42px; height: 42px; display: grid; place-items: center; border: 3px double #ff686f; border-radius: 50%; background: transparent; color: #ff686f; font-size: 18px; font-weight: 900; line-height: 1; text-shadow: 0 0 8px rgba(255,67,79,.34); box-shadow: inset 0 0 0 1px rgba(255,80,89,.12); filter: drop-shadow(0 4px 0 rgba(112,22,31,.5)) drop-shadow(0 8px 7px rgba(44,5,12,.3)); transform: rotate(-11deg); animation: winStampIn .56s cubic-bezier(.16,1,.3,1) both; pointer-events: none; }
 body.settling .win-stamp { opacity: 0; animation: none; }
 @keyframes winStampIn { from { opacity: 0; transform: translateY(-12px) rotate(-26deg) scale(3.1); filter: blur(4px) drop-shadow(0 0 0 #571019); } 72% { opacity: 1; transform: translateY(2px) rotate(-7deg) scale(.88); filter: blur(0) drop-shadow(0 7px 0 #571019); } to { transform: translateY(0) rotate(-11deg) scale(1); } }
 .avatar-hint { max-width: 72px; overflow: hidden; color: #777188; font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
@@ -86,8 +86,14 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .total-score.positive { color: var(--coral); }
 .total-score.negative { color: var(--mint); }
 .total-score.zero { color: #777188; }
-.player-title { height: 17px; margin-top: 5px; color: var(--amber); font-size: 9px; letter-spacing: .04em; white-space: nowrap; }
-.player-title.empty { color: #5f5a6e; }
+.player-title { width: max-content; max-width: 100%; height: 17px; margin: 5px auto 0; padding: 2px 6px; overflow: hidden; border: 1px solid transparent; border-radius: 6px; color: #c6aa73; font-size: 8px; line-height: 11px; letter-spacing: .04em; text-overflow: ellipsis; white-space: nowrap; }
+.player-title.empty, .player-title.title-tier-neutral { color: #625d70; background: transparent; }
+.title-tier-small { color: #cbb27a; }
+.player-title.title-tier-medium { color: #ff9bac; border-color: rgba(255,139,158,.18); background: rgba(255,139,158,.055); }
+.player-title.title-tier-large { color: #caa5ff; border-color: rgba(196,155,255,.25); background: rgba(142,96,205,.08); box-shadow: 0 0 10px rgba(196,155,255,.08); }
+.player-title.title-tier-epic { color: #a8ddff; border-color: rgba(157,215,255,.32); background: rgba(87,160,211,.09); box-shadow: 0 0 12px rgba(157,215,255,.12); font-weight: 800; }
+.player-title.title-tier-bomb { color: #ffc060; border-color: rgba(255,192,96,.35); background: rgba(181,106,16,.1); box-shadow: 0 0 12px rgba(255,192,96,.1); font-weight: 800; }
+.player-title.title-tier-loss { color: #669b86; }
 
 .wheel-cell { display: flex; justify-content: center; }
 .wheel-container { width: 60px; height: 100px; position: relative; overflow: hidden; cursor: grab; touch-action: none; }
@@ -129,7 +135,12 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .history-score-info { min-width: 0; }
 .history-score-item .value { display: block; width: 3.3ch; text-align: left; }
 .round-role { display: block; max-width: 48px; margin-top: 4px; overflow: hidden; color: #6f697e; font: 500 7px/1 "Noto Sans SC", sans-serif; white-space: nowrap; text-overflow: ellipsis; }
-.history-score-item.is-winner .round-role { color: var(--amber); }
+.round-role.title-tier-small { color: #a99062; }
+.round-role.title-tier-medium { color: #d98799; }
+.round-role.title-tier-large { color: #ae8cdb; }
+.round-role.title-tier-epic { color: #8ebfdc; }
+.round-role.title-tier-bomb { color: #dca24d; }
+.round-role.title-tier-loss { color: #608b7a; }
 .undo-btn { width: 40px; height: 28px; border-radius: 8px; background: transparent; border: 1px solid rgba(255,100,124,.18); color: var(--coral); font-size: 10px; }
 .show-more-btn { width: 100%; margin-top: 8px; padding: 12px; border-radius: 12px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .no-history { padding: 26px 0; text-align: center; color: #686276; font-size: 12px; }
@@ -174,7 +185,12 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .menu-arrow { color: #656073; font-size: 16px; }
 .profile-hero { display: grid; grid-template-columns: 68px 1fr; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(circle at 10% 10%,rgba(246,189,99,.1),transparent 50%),rgba(255,255,255,.025); }
 .profile-avatar { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 19px; background: var(--avatar); border: 1px solid rgba(255,255,255,.12); font-size: 27px; }
-.profile-current { color: var(--amber); font-size: 15px; font-weight: 800; }
+.profile-current { color: #cbb27a; font-size: 15px; font-weight: 800; }
+.profile-current.title-tier-medium { color: #ff9bac; }
+.profile-current.title-tier-large { color: #caa5ff; text-shadow: 0 0 14px rgba(196,155,255,.18); }
+.profile-current.title-tier-epic { color: #a8ddff; text-shadow: 0 0 16px rgba(157,215,255,.22); }
+.profile-current.title-tier-bomb { color: #ffc060; text-shadow: 0 0 16px rgba(255,192,96,.2); }
+.profile-current.title-tier-loss { color: #669b86; }
 .profile-rank { margin-top: 4px; color: var(--muted); font-size: 11px; }
 .profile-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-top: 10px; }
 .profile-stat { padding: 9px 4px; border-radius: 12px; background: rgba(255,255,255,.035); text-align: center; }
@@ -183,7 +199,12 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .title-history { display: flex; flex-direction: column; gap: 6px; }
 .title-record { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 8px; padding: 10px 11px; border-radius: 12px; background: rgba(255,255,255,.032); border: 1px solid var(--line); }
 .title-record .round { color: #716b80; font: 500 9px/1 "DM Mono", monospace; }
-.title-record b { font-size: 12px; }
+.title-record b { color: #cbb27a; font-size: 12px; }
+.title-record.title-tier-medium b { color: #ff9bac; }
+.title-record.title-tier-large b { color: #caa5ff; }
+.title-record.title-tier-epic b { color: #a8ddff; }
+.title-record.title-tier-bomb b { color: #ffc060; }
+.title-record.title-tier-loss b { color: #669b86; }
 .title-record .score { font: 500 12px/1 "DM Mono", monospace; }
 .profile-empty { padding: 28px 12px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.8; }
 .settlement { --effect-color: var(--amber); --title-panel: linear-gradient(90deg,transparent,rgba(28,22,19,.88) 18%,rgba(28,22,19,.88) 82%,transparent); --title-min: 36px; --title-max: 44px; --title-border: 1px solid color-mix(in srgb,var(--effect-color) 42%,transparent); --stamp-color: #f0b85c; position: fixed; z-index: 900; inset: 0; display: none; overflow: hidden; background: transparent; pointer-events: none; }
@@ -390,7 +411,7 @@ function renderPlayers(keepCurrent) {
     ac.append(av,hint);
     var tw = document.createElement('div'); tw.className = 'total-wrap';
     var total = document.createElement('div'); total.className = 'total-score mono ' + scoreClass(totals[i]); total.id = 'total-' + i; total.textContent = totals[i];
-    var playerTitle=getTableTitle(i), title = document.createElement('div'); title.className = 'player-title'+(!rounds.length?' empty':''); title.textContent = playerTitle;
+    var playerTitle=getTableTitle(i), lastScores=rounds.length?getScores(rounds[rounds.length-1]):null, titleTier=lastScores?getRoleTier(i,lastScores,roundMeta[rounds.length-1]):'neutral', title = document.createElement('div'); title.className = 'player-title'+(!rounds.length?' empty':' title-tier-'+titleTier); title.textContent = playerTitle;
     tw.append(total,title);
     var wc = document.createElement('div'); wc.className = 'wheel-cell';
     var wheel = document.createElement('div'); wheel.className = 'wheel-container'; wheel.id = 'wheel-' + i;
@@ -475,6 +496,8 @@ function getBombWins(idx){var n=0;for(var i=0;i<roundMeta.length;i++)if(roundMet
 function getBestRound(idx){var best=0;for(var r=0;r<rounds.length;r++)best=Math.max(best,getScores(rounds[r])[idx]||0);return best;}
 function getWins(idx){var n=0;for(var r=0;r<rounds.length;r++)if((getScores(rounds[r])[idx]||0)>0)n++;return n;}
 function getLastRoundWinner(){if(!rounds.length)return -1;var scores=getScores(rounds[rounds.length-1]),winners=[];scores.forEach(function(v,i){if(v>0)winners.push(i);});return winners.length===1?winners[0]:-1;}
+function getRoundTier(scores,meta){if(meta&&meta.type==='bomb')return 'bomb';var max=Math.max.apply(null,scores);return max>=10?'epic':max>=8?'large':max>=4?'medium':'small';}
+function getRoleTier(idx,scores,meta){var score=scores[idx]||0;return score>0?getRoundTier(scores,meta):score<0?'loss':'neutral';}
 function getOverallRank(idx){if(!rounds.length)return 0;var unique=Array.from(new Set(totals.slice().sort(function(a,b){return b-a;})));return unique.indexOf(totals[idx])+1;}
 function getRankInfo(idx){var rank=getOverallRank(idx);return rank&&rank<=3?{rank:rank,label:rank===1?'第一名':rank===2?'第二名':'第三名'}:null;}
 function getTableTitle(idx){if(!rounds.length)return '等待首轮开张';var r=rounds.length-1;return getRoundRoleTitle(idx,getScores(rounds[r]),roundMeta[r],r);}
@@ -493,6 +516,7 @@ function getPlayerTitle(idx){
   if(rank&&rank.rank===1)return '◆ 含金量还在上升';
   return '再赢一轮，包有称号的';
 }
+function getPlayerTitleTier(idx){if(!rounds.length)return 'neutral';var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx);if(s.sign>0&&s.count>=5)return 'epic';if(s.sign>0&&s.count>=3)return 'large';if(s.sign>0&&s.count===2)return 'medium';if(bombs>=3)return 'bomb';if(s.sign<0&&s.count>=3)return 'loss';if(best>=10)return 'epic';if(rank&&rank.rank===1)return 'medium';return getRoleTier(idx,getScores(rounds[rounds.length-1]),roundMeta[rounds.length-1]);}
 function getRoundRoleTitle(idx,scores,meta,roundIndex){
   var score=scores[idx]||0,max=Math.max.apply(null,scores),streak=getStreakAt(idx,roundIndex),losses=0;
   for(var r=roundIndex-1;r>=0;r--){if((getScores(rounds[r])[idx]||0)<0)losses++;else break;}
@@ -585,7 +609,7 @@ function renderHistory(){
   indices.forEach(function(idx){var scores=getScores(rounds[idx]),meta=roundMeta[idx],el=document.createElement('div');el.className='history-item'+(idx===rounds.length-1?' newest':'');
     var rn=document.createElement('div');rn.className='history-round mono';rn.textContent='R'+(idx+1);if(meta&&meta.type==='bomb'){var bombTag=document.createElement('b');bombTag.textContent='💣 '+meta.rate;rn.appendChild(bombTag);}
     var sc=document.createElement('div');sc.className='history-scores';sc.style.setProperty('--players',playerCount);
-    for(var i=0;i<playerCount;i++){var item=document.createElement('div');item.className='history-score-item'+(scores[i]>0?' is-winner':'');var av=document.createElement('button');av.type='button';av.className='mini-avatar';av.textContent=players[i];av.setAttribute('aria-label','查看'+players[i]+'的称号历史');(function(playerIdx){av.onclick=function(){openPlayerProfile(playerIdx);};})(i);var info=document.createElement('span');info.className='history-score-info';var val=document.createElement('span');val.className='value';val.textContent=signed(scores[i]);val.style.color=scores[i]>0?'var(--coral)':scores[i]<0?'var(--mint)':'#777188';var role=document.createElement('span');role.className='round-role';role.textContent=getRoundRoleTitle(i,scores,meta,idx);info.append(val,role);item.append(av,info);sc.appendChild(item);}
+    for(var i=0;i<playerCount;i++){var item=document.createElement('div');item.className='history-score-item'+(scores[i]>0?' is-winner':'');var av=document.createElement('button');av.type='button';av.className='mini-avatar';av.textContent=players[i];av.setAttribute('aria-label','查看'+players[i]+'的称号历史');(function(playerIdx){av.onclick=function(){openPlayerProfile(playerIdx);};})(i);var info=document.createElement('span');info.className='history-score-info';var val=document.createElement('span');val.className='value';val.textContent=signed(scores[i]);val.style.color=scores[i]>0?'var(--coral)':scores[i]<0?'var(--mint)':'#777188';var role=document.createElement('span');role.className='round-role title-tier-'+getRoleTier(i,scores,meta);role.textContent=getRoundRoleTitle(i,scores,meta,idx);info.append(val,role);item.append(av,info);sc.appendChild(item);}
     var action=document.createElement('div');if(idx===rounds.length-1){var undo=document.createElement('button');undo.type='button';undo.className='undo-btn';undo.textContent='撤销';undo.onclick=undoLast;action.appendChild(undo);}el.append(rn,sc,action);root.appendChild(el);
   });more.hidden=rounds.length<=5;more.textContent=showAll?'收起':'显示全部（'+rounds.length+' 轮）';
 }
@@ -599,9 +623,9 @@ function saveCustomSymbol(){var symbol=limitSymbol(document.getElementById('cust
 function openPlayerProfile(idx){viewingPlayer=idx;document.getElementById('profileTitle').textContent=players[idx]+' · 个人战报';renderPlayerProfile(idx);openModal('profileModal');}
 function renderPlayerProfile(idx){
   var root=document.getElementById('profileContent'),rank=getRankInfo(idx),wins=getWins(idx),best=getBestRound(idx),bombs=getBombWins(idx),records=[];
-  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),score=scores[idx]||0;records.push('<div class="title-record"><span class="round">R'+(r+1)+'</span><b>'+escapeHTML(getRoundRoleTitle(idx,scores,roundMeta[r],r))+'</b><span class="score" style="color:'+(score>0?'var(--coral)':score<0?'var(--mint)':'#777188')+'">'+signed(score)+'</span></div>');}
+  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),score=scores[idx]||0;records.push('<div class="title-record title-tier-'+getRoleTier(idx,scores,roundMeta[r])+'"><span class="round">R'+(r+1)+'</span><b>'+escapeHTML(getRoundRoleTitle(idx,scores,roundMeta[r],r))+'</b><span class="score" style="color:'+(score>0?'var(--coral)':score<0?'var(--mint)':'#777188')+'">'+signed(score)+'</span></div>');}
   var rankCopy=!rounds.length?'新牌桌 · 等待第一轮称号':(rank?rank.label:'当前第 '+getOverallRank(idx)+' 名')+' · 总分 '+totals[idx];
-  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">称号历史</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有称号记录<br>完成第一轮后，这里会生成每轮角色称号</div>');
+  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">称号历史</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有称号记录<br>完成第一轮后，这里会生成每轮角色称号</div>');
 }
 function openBombModal(){bombWinner=0;bombRate=2;renderBombPicker();openModal('bombModal');}
 function renderBombPicker(){var wp=document.getElementById('bombWinnerPicker');wp.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='picker-option'+(i===bombWinner?' selected':'');b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){bombWinner=idx;renderBombPicker();};})(i);wp.appendChild(b);}var rp=document.getElementById('bombRatePicker');rp.innerHTML='';[2,4].forEach(function(rate){var b=document.createElement('button');b.type='button';b.className='picker-option'+(rate===bombRate?' selected':'');b.textContent='每人 '+rate+' 分';b.onclick=function(){bombRate=rate;renderBombPicker();};rp.appendChild(b);});document.getElementById('bombPreview').textContent=players[bombWinner]+' 获得 +'+(bombRate*(playerCount-1))+'，其余每人 -'+bombRate+'。炸弹会单独记入历史和称号。';}
