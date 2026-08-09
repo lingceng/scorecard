@@ -50,3 +50,15 @@
 - 原生 HTML / CSS / JavaScript（无框架、无构建工具）
 - `localStorage` 持久化
 - Google Fonts（DM Mono + Noto Sans SC）
+
+## 双端维护
+
+两端共用规则与体验基线位于 [`shared/`](./shared/)。修改称号、计分范围或公共音频后运行：
+
+```bash
+node scripts/sync-mini-shared.mjs
+node scripts/sync-mini-shared.mjs --check
+node tests/game-rules.test.js
+```
+
+小程序提交时同时提交生成的 `shared/game-rules.js`、`docs/双端体验基线.md` 和有效音频副本。
