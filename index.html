@@ -47,9 +47,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .brand p { margin-top: 2px; color: var(--muted); font-size: 10px; letter-spacing: .18em; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,.035);
-  border: 1px solid var(--line); color: var(--muted); display: flex; align-items: center; justify-content: center; padding: 0; line-height: 0;
+  border: 1px solid var(--line); color: var(--muted); display: grid; place-items: center; padding: 0;
 }
-.icon-btn svg { display: block; width: 18px; height: 18px; stroke: currentColor; }
+.more-icon { display: flex; align-items: center; justify-content: center; gap: 3px; width: 18px; height: 18px; }
+.more-icon i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px rgba(255,255,255,.12); }
 .icon-btn:active { transform: scale(.94); }
 
 .score-table { overflow: hidden; background: rgba(18,17,29,.9); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 18px 48px rgba(0,0,0,.22); }
@@ -60,13 +61,20 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .player-row { position: relative; min-height: 92px; padding: 6px 12px; border-bottom: 1px solid var(--line); transition: background .3s ease; }
 .player-row:last-child { border-bottom: 0; }
 .player-row.auto-highlighted { background: rgba(246,189,99,.035); }
-.avatar-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.avatar-cell { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
 .avatar {
   width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; flex: none;
   background: var(--avatar); border: 1px solid rgba(255,255,255,.11); box-shadow: inset 0 1px rgba(255,255,255,.08), 0 6px 16px rgba(0,0,0,.24);
   color: #fff; font-size: 23px; font-weight: 650; line-height: 1; transition: transform .15s ease, border-color .2s ease;
 }
 .avatar:active { transform: scale(.93) rotate(-2deg); }
+.rank-1 .avatar { border-color: rgba(255,210,101,.62); box-shadow: inset 0 1px rgba(255,255,255,.12), 0 0 0 2px rgba(246,189,99,.1), 0 7px 24px rgba(246,189,99,.18); }
+.rank-2 .avatar { border-color: rgba(194,214,232,.42); box-shadow: inset 0 1px rgba(255,255,255,.1), 0 0 0 2px rgba(194,214,232,.06), 0 7px 20px rgba(155,183,207,.12); }
+.rank-3 .avatar { border-color: rgba(215,145,91,.42); box-shadow: inset 0 1px rgba(255,255,255,.1), 0 0 0 2px rgba(215,145,91,.06), 0 7px 20px rgba(182,107,59,.12); }
+.rank-medal { position: absolute; z-index: 3; top: -5px; left: 39px; min-width: 21px; height: 21px; padding: 0 5px; display: grid; place-items: center; border-radius: 99px; border: 2px solid var(--table); background: #302d3d; color: #b8b2c4; font: 800 9px/1 "DM Mono", monospace; }
+.rank-1 .rank-medal { background: linear-gradient(145deg,#ffe08a,#d99634); color: #392108; box-shadow: 0 0 13px rgba(246,189,99,.38); }
+.rank-2 .rank-medal { background: linear-gradient(145deg,#e7eef4,#93a7b9); color: #26313c; }
+.rank-3 .rank-medal { background: linear-gradient(145deg,#e5a06a,#9b5835); color: #30170b; }
 .avatar-hint { max-width: 72px; overflow: hidden; color: #777188; font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
 .total-wrap { min-width: 0; text-align: center; }
 .total-score { font-size: 36px; font-weight: 500; line-height: 1.05; letter-spacing: -.05em; transition: color .25s ease; }
@@ -74,6 +82,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .total-score.negative { color: var(--mint); }
 .total-score.zero { color: #777188; }
 .player-title { height: 17px; margin-top: 5px; color: var(--amber); font-size: 9px; letter-spacing: .04em; white-space: nowrap; }
+.player-title.empty { color: #5f5a6e; }
 
 .wheel-cell { display: flex; justify-content: center; }
 .wheel-container { width: 60px; height: 100px; position: relative; overflow: hidden; cursor: grab; touch-action: none; }
@@ -94,26 +103,29 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 @keyframes scorePulse { 50% { transform: scale(1.16); } }
 .total-score.animating { animation: scorePulse .5s ease; }
 
-.action-row { display: grid; grid-template-columns: 92px 1fr; gap: 8px; padding: 12px 0 4px; }
-.bomb-btn, .submit-btn { min-height: 54px; border-radius: 17px; font-weight: 700; transition: transform .15s, filter .15s; }
+.action-row { display: grid; grid-template-columns: 82px 82px 1fr; gap: 7px; padding: 12px 0 4px; }
+.bomb-btn, .quick-btn, .submit-btn { min-height: 54px; border-radius: 17px; font-weight: 700; transition: transform .15s, filter .15s; }
 .bomb-btn { background: #1b1928; border: 1px solid var(--line); color: #bab4c9; font-size: 13px; }
-.bomb-btn span { display: block; color: #777188; font-size: 9px; font-weight: 400; margin-top: 1px; }
+.quick-btn { background: rgba(157,215,255,.055); border: 1px solid rgba(157,215,255,.1); color: #c5dff0; font-size: 13px; }
+.bomb-btn span, .quick-btn span { display: block; color: #777188; font-size: 8px; font-weight: 400; margin-top: 1px; }
 .submit-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, #ff647c, #d94b68); color: white; font-size: 16px; letter-spacing: .12em; box-shadow: 0 8px 24px rgba(217,75,104,.22); }
-.submit-btn:active, .bomb-btn:active { transform: scale(.975); filter: brightness(.94); }
-.submit-btn.bomb-ready { background: linear-gradient(135deg, #f6bd63, #dc884b); color: #24150b; box-shadow: 0 8px 24px rgba(246,189,99,.18); }
+.submit-btn:active, .bomb-btn:active, .quick-btn:active { transform: scale(.975); filter: brightness(.94); }
 
 .history-section { margin-top: 20px; }
 .section-title { display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px 8px; color: var(--muted); font-size: 12px; letter-spacing: .1em; }
 .history-list { display: flex; flex-direction: column; gap: 6px; }
-.history-item { display: grid; grid-template-columns: 34px minmax(0,1fr) 42px; align-items: center; gap: 4px; min-height: 50px; padding: 7px 8px; background: var(--card); border: 1px solid var(--line); border-radius: 13px; }
+.history-item { display: grid; grid-template-columns: 34px minmax(0,1fr) 42px; align-items: center; gap: 4px; min-height: 58px; padding: 7px 8px; background: var(--card); border: 1px solid var(--line); border-radius: 13px; }
 .history-item.newest { animation: historyIn .35s ease-out; }
 @keyframes historyIn { from { opacity: 0; transform: translateY(-8px); } }
 .history-round { color: #777188; font-size: 10px; text-align: center; }
 .history-round b { display: block; margin-top: 2px; color: var(--amber); font-size: 8px; }
 .history-scores { --players: 4; display: grid; grid-template-columns: repeat(var(--players), minmax(0,1fr)); align-items: center; }
-.history-score-item { min-width: 0; display: grid; grid-template-columns: 20px 3.3ch; justify-content: center; align-items: center; column-gap: 3px; font: 500 11px/1 "DM Mono", monospace; font-variant-numeric: tabular-nums; }
+.history-score-item { min-width: 0; display: grid; grid-template-columns: 20px minmax(0,1fr); justify-content: center; align-items: center; column-gap: 3px; font: 500 11px/1 "DM Mono", monospace; font-variant-numeric: tabular-nums; }
 .mini-avatar { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 7px; background: var(--avatar); border: 1px solid rgba(255,255,255,.09); color: white; font-family: "Noto Sans SC", sans-serif; font-size: 9px; line-height: 1; }
-.history-score-item .value { width: 3.3ch; text-align: left; }
+.history-score-info { min-width: 0; }
+.history-score-item .value { display: block; width: 3.3ch; text-align: left; }
+.round-role { display: block; max-width: 48px; margin-top: 4px; overflow: hidden; color: #6f697e; font: 500 7px/1 "Noto Sans SC", sans-serif; white-space: nowrap; text-overflow: ellipsis; }
+.history-score-item.is-winner .round-role { color: var(--amber); }
 .undo-btn { width: 40px; height: 28px; border-radius: 8px; background: transparent; border: 1px solid rgba(255,100,124,.18); color: var(--coral); font-size: 10px; }
 .show-more-btn { width: 100%; margin-top: 8px; padding: 12px; border-radius: 12px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .no-history { padding: 26px 0; text-align: center; color: #686276; font-size: 12px; }
@@ -156,8 +168,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .menu-copy b { display: block; font-size: 13px; }
 .menu-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
 .menu-arrow { color: #656073; font-size: 16px; }
+.profile-hero { display: grid; grid-template-columns: 68px 1fr; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(circle at 10% 10%,rgba(246,189,99,.1),transparent 50%),rgba(255,255,255,.025); }
+.profile-avatar { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 19px; background: var(--avatar); border: 1px solid rgba(255,255,255,.12); font-size: 27px; }
+.profile-current { color: var(--amber); font-size: 15px; font-weight: 800; }
+.profile-rank { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.profile-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-top: 10px; }
+.profile-stat { padding: 9px 4px; border-radius: 12px; background: rgba(255,255,255,.035); text-align: center; }
+.profile-stat b { display: block; color: var(--text); font: 600 14px/1 "DM Mono", monospace; }
+.profile-stat span { display: block; margin-top: 5px; color: var(--muted); font-size: 9px; }
+.title-history { display: flex; flex-direction: column; gap: 6px; }
+.title-record { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 8px; padding: 10px 11px; border-radius: 12px; background: rgba(255,255,255,.032); border: 1px solid var(--line); }
+.title-record .round { color: #716b80; font: 500 9px/1 "DM Mono", monospace; }
+.title-record b { font-size: 12px; }
+.title-record .score { font: 500 12px/1 "DM Mono", monospace; }
+.profile-empty { padding: 28px 12px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.8; }
+.quick-score-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.quick-score { min-height: 52px; border-radius: 13px; background: rgba(255,255,255,.045); border: 1px solid var(--line); color: var(--coral); font: 600 17px/1 "DM Mono", monospace; }
+.quick-score small { display: block; margin-top: 5px; color: var(--muted); font: 400 8px/1 "Noto Sans SC", sans-serif; }
 
-.settlement { position: fixed; z-index: 900; inset: 0; display: none; padding: 16px 0; background: rgba(7,6,13,.18); backdrop-filter: blur(2px) saturate(.9); pointer-events: none; }
+.settlement { position: fixed; z-index: 900; inset: 0; display: none; padding: 16px 0; overflow: hidden; background: rgba(7,6,13,.14); backdrop-filter: blur(1.5px) saturate(.92); pointer-events: none; }
 .settlement.active { display: grid; place-items: center; }
 .settlement.leaving { display: grid; animation: overlayOut .34s ease forwards; }
 .settlement-panel { position: relative; z-index: 2; width: min(92vw,390px); padding: 22px 18px 16px; overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(255,255,255,.13); border-radius: 26px; background: radial-gradient(circle at 50% 0%, rgba(246,189,99,.17), transparent 38%), rgba(15,13,24,.78); box-shadow: 0 22px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.07); backdrop-filter: blur(13px) saturate(1.15); animation: settlementIn .42s cubic-bezier(.16,1,.3,1); }
@@ -167,7 +196,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 @keyframes settlementIn { from { opacity: 0; transform: translateY(16px) scale(.9); filter: blur(5px); } 65% { transform: translateY(-2px) scale(1.015); } }
 @keyframes overlayOut { to { opacity: 0; transform: scale(1.035); } }
 .settlement-kicker { color: #d5cedd; font: 500 9px/1 "DM Mono", monospace; letter-spacing: .16em; opacity: .72; }
-.settlement-rank { margin-top: 9px; padding: 5px 12px; border: 1px solid rgba(246,189,99,.28); border-radius: 99px; background: rgba(246,189,99,.08); color: var(--amber); font: 500 11px/1 "DM Mono", monospace; letter-spacing: .16em; box-shadow: 0 0 22px rgba(246,189,99,.08); animation: rankPulse 1s ease-in-out infinite alternate; }
+.settlement-rank { margin-top: 9px; padding: 5px 12px; border: 1px solid rgba(246,189,99,.28); border-radius: 99px; background: rgba(246,189,99,.08); color: var(--amber); font-size: 11px; font-weight: 800; letter-spacing: .14em; box-shadow: 0 0 22px rgba(246,189,99,.08); animation: rankPulse 1s ease-in-out infinite alternate; }
 @keyframes rankPulse { to { box-shadow: 0 0 30px rgba(246,189,99,.23); transform: scale(1.025); } }
 .settlement-title { position: relative; margin-top: 10px; font-size: 31px; font-weight: 900; letter-spacing: -.05em; line-height: 1.15; text-align: center; text-shadow: 0 5px 24px rgba(0,0,0,.42); }
 .settlement-title::before, .settlement-title::after { content: "◆"; margin: 0 8px; color: var(--amber); font-size: 8px; vertical-align: middle; opacity: .65; }
@@ -178,6 +207,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 @keyframes winnerFloat { to { transform: translateY(-5px) scale(1.03); } }
 .result-avatar { width: 45px; height: 45px; margin: 0 auto 5px; display: grid; place-items: center; border-radius: 15px; background: var(--avatar); border: 1px solid rgba(255,255,255,.15); font-size: 21px; }
 .result-score { color: var(--coral); font: 500 17px/1 "DM Mono", monospace; }
+.result-role { margin-top: 5px; color: var(--amber); font-size: 8px; }
 .transfer-zone { position: relative; width: 100%; height: 46px; overflow: hidden; }
 .flying-token { position: absolute; left: calc(50% - 9px); top: 2px; color: var(--amber); font-size: 17px; text-shadow: 0 0 14px currentColor; animation: tokenRise 1s cubic-bezier(.2,.7,.2,1) infinite; }
 .flying-token:nth-child(2) { margin-left: -35px; animation-delay: .18s; }
@@ -193,6 +223,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .auto-progress::after { content: ""; display: block; height: 100%; background: linear-gradient(90deg,var(--amber),var(--coral)); transform-origin: left; animation: progressDrain var(--settlement-duration,2200ms) linear forwards; }
 @keyframes progressDrain { to { transform: scaleX(0); } }
 .weather { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.motion-layer { position: absolute; z-index: 4; inset: 0; overflow: hidden; pointer-events: none; }
+.score-orb { position: absolute; width: 14px; height: 14px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 30%,#fff6bd,#f5ae3c 48%,#9d4f16); color: #3b2107; font: 900 7px/1 "DM Mono",monospace; box-shadow: 0 0 18px rgba(255,190,78,.85); }
+.impact-ring { position: absolute; z-index: 3; width: 46px; height: 46px; border: 2px solid rgba(255,221,135,.72); border-radius: 50%; opacity: 0; box-shadow: 0 0 22px rgba(255,190,78,.35); }
+.screen-flash { position: absolute; z-index: 5; inset: 0; opacity: 0; background: radial-gradient(circle,rgba(255,238,175,.34),transparent 58%); mix-blend-mode: screen; }
 .snow { position: absolute; top: -30px; color: var(--ice); opacity: .75; animation: snowfall linear infinite; }
 @keyframes snowfall { to { transform: translate3d(30px,110vh,0) rotate(180deg); } }
 .effect-epic .settlement-panel { background: radial-gradient(circle at 50% 10%, rgba(102,178,236,.26), transparent 40%), rgba(10,13,24,.76); box-shadow: 0 0 100px rgba(80,160,230,.23); }
@@ -218,8 +252,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
   .avatar { width: 46px; height: 46px; border-radius: 14px; }
   .total-score { font-size: 32px; }
   .history-item { grid-template-columns: 30px minmax(0,1fr) 38px; padding-inline: 5px; }
-  .history-score-item { grid-template-columns: 18px 3.1ch; column-gap: 1px; font-size: 10px; }
+  .action-row { grid-template-columns: 72px 72px 1fr; gap: 5px; }
+  .bomb-btn, .quick-btn { font-size: 12px; }
+  .history-score-item { grid-template-columns: 18px minmax(0,1fr); column-gap: 1px; font-size: 10px; }
   .mini-avatar { width: 18px; height: 18px; }
+  .round-role { max-width: 39px; font-size: 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -231,7 +268,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
   <header class="appbar">
     <span></span>
     <div class="brand"><h1>科科打牌记分器</h1><p>今晚谁来收租</p></div>
-    <button class="icon-btn" type="button" aria-label="设置" onclick="openSettings()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z" stroke-width="1.7"/><path d="M19.1 13.25c.05-.41.05-.84 0-1.25l1.48-1.15-1.7-2.95-1.74.72a7.8 7.8 0 0 0-1.08-.63L15.8 6.1h-3.4l-.26 1.89c-.38.18-.74.39-1.08.63L9.32 7.9l-1.7 2.95L9.1 12c-.05.41-.05.84 0 1.25L7.62 14.4l1.7 2.95 1.74-.72c.34.24.7.45 1.08.63l.26 1.89h3.4l.26-1.89c.38-.18.74-.39 1.08-.63l1.74.72 1.7-2.95-1.48-1.15Z" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+    <button class="icon-btn" type="button" aria-label="设置" onclick="openSettings()"><span class="more-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
   </header>
 
   <section class="score-table" aria-label="玩家计分">
@@ -240,6 +277,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
   </section>
 
   <div class="action-row">
+    <button class="quick-btn" type="button" onclick="openQuickModal()">⚡ 速填<span>单赢家均摊</span></button>
     <button class="bomb-btn" type="button" onclick="openBombModal()">💣 炸弹<span>统一收 2 / 4</span></button>
     <button class="submit-btn" type="button" id="submitBtn" onclick="submitScores()">提交分数</button>
   </div>
@@ -254,9 +292,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 
 <div class="settlement" id="settlement" role="status" aria-live="assertive" aria-hidden="true">
   <div class="weather" id="weather"></div>
+  <div class="motion-layer" id="motionLayer"></div>
+  <div class="screen-flash" id="screenFlash"></div>
   <div class="settlement-panel">
-    <div class="settlement-kicker" id="settlementKicker">ROUND SETTLED</div>
-    <div class="settlement-rank" id="settlementRank">DOMINATING</div>
+    <div class="settlement-kicker" id="settlementKicker">本轮战报</div>
+    <div class="settlement-rank" id="settlementRank">火力全开</div>
     <h2 class="settlement-title" id="settlementTitle"></h2>
     <p class="settlement-copy" id="settlementCopy"></p>
     <div class="winner-stack" id="winnerStack"></div>
@@ -282,7 +322,23 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
     <div class="sheet-label">谁放的炸弹</div><div class="picker-grid" id="bombWinnerPicker"></div>
     <div class="sheet-label">每人支付</div><div class="picker-grid" id="bombRatePicker"></div>
     <div class="bomb-preview" id="bombPreview"></div>
-    <button class="wide-primary" type="button" onclick="applyBomb()">填入本轮分数</button>
+    <button class="wide-primary" type="button" onclick="applyBomb()">直接结算炸弹</button>
+  </div>
+</div>
+
+<div class="modal" id="quickModal" role="dialog" aria-modal="true" aria-labelledby="quickTitle" onclick="closeOnBackdrop(event,'quickModal')">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="quickTitle">⚡ 单赢家速填</h2><button class="close-btn" type="button" onclick="closeModal('quickModal')">✕</button></div>
+    <div class="sheet-label">本轮赢家</div><div class="picker-grid" id="quickWinnerPicker"></div>
+    <div class="sheet-label">赢家得分</div><div class="quick-score-grid" id="quickScorePicker"></div>
+    <div class="bomb-preview" id="quickPreview">选择得分后会自动均摊给其他玩家，回到牌桌仍可微调。</div>
+  </div>
+</div>
+
+<div class="modal" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle" onclick="closeOnBackdrop(event,'profileModal')">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="profileTitle">个人战报</h2><button class="close-btn" type="button" onclick="closeModal('profileModal')">✕</button></div>
+    <div id="profileContent"></div>
   </div>
 </div>
 
@@ -291,7 +347,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
     <div class="sheet-head"><h2 id="settingsTitle">牌桌设置</h2><button class="close-btn" type="button" onclick="closeModal('settingsModal')">✕</button></div>
     <div class="setting-row"><div class="setting-copy"><b>沉浸结算</b><span>显示收租关系、称号和天气效果</span></div><button class="switch" id="effectsSwitch" type="button" aria-label="切换沉浸结算" onclick="toggleSetting('effects')"></button></div>
     <div class="setting-row"><div class="setting-copy"><b>结算音效</b><span>默认关闭，可先试听确认设备声音</span></div><div class="setting-controls"><button class="preview-btn" type="button" onclick="previewSound()">试听</button><button class="switch" id="soundSwitch" type="button" aria-label="切换结算音效" onclick="toggleSetting('sound')"></button></div></div>
-    <div class="sheet-label">玩家标记</div><div class="identity-list" id="identityList"></div>
+    <div class="sheet-label">头像 / 昵称</div><div class="identity-list" id="identityList"></div>
     <div class="sheet-label">牌桌</div>
     <div class="settings-menu">
       <button class="menu-row" type="button" onclick="openNewGameFromSettings()"><span class="menu-icon">↻</span><span class="menu-copy"><b>新局 / 改人数</b><span>清空本局记录并重新选择人数</span></span><span class="menu-arrow">›</span></button>
@@ -323,9 +379,9 @@ var totals = [], currentScores = [], rounds = [], roundMeta = [], userTouched = 
 var settings = readJSON('cardSettings', { effects:true, sound:false });
 if (typeof settings.effects !== 'boolean') settings.effects = true;
 if (typeof settings.sound !== 'boolean') settings.sound = false;
-var showAll = false, editingPlayer = -1, autoCalcIndex = -1, autoCalcLocked = false;
-var pendingCount = playerCount, bombWinner = 0, bombRate = 2, pendingRoundMeta = null;
-var settlementTimer = null, settlementExitTimer = null, soundHintShown = false;
+var showAll = false, editingPlayer = -1, viewingPlayer = -1, autoCalcIndex = -1, autoCalcLocked = false;
+var pendingCount = playerCount, bombWinner = 0, bombRate = 2, quickWinner = 0, pendingRoundMeta = null;
+var settlementTimer = null, settlementExitTimer = null, soundHintShown = false, audioContext = null;
 
 function readJSON(key, fallback) { try { var v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; } catch (e) { return fallback; } }
 function makeArray(n, val) { return Array.from({length:n}, function(){ return val; }); }
@@ -359,14 +415,16 @@ function renderPlayers(keepCurrent) {
   var root = document.getElementById('playerRows'); root.innerHTML = '';
   for (var i=0;i<playerCount;i++) {
     var row = document.createElement('div'); row.className = 'player-row'; row.id = 'row-' + i;
-    var ac = document.createElement('div'); ac.className = 'avatar-cell';
-    var av = document.createElement('button'); av.type = 'button'; av.className = 'avatar'; av.textContent = players[i]; av.setAttribute('aria-label','修改玩家' + (i+1) + '的标记');
-    (function(idx){ av.onclick = function(){ openIdentityModal(idx); }; })(i);
+    var rank = getRankInfo(i);
+    var ac = document.createElement('div'); ac.className = 'avatar-cell' + (rank ? ' rank-' + rank.rank : '');
+    var av = document.createElement('button'); av.type = 'button'; av.className = 'avatar'; av.textContent = players[i]; av.setAttribute('aria-label','查看玩家' + (i+1) + '的个人战报');
+    (function(idx){ av.onclick = function(){ openPlayerProfile(idx); }; })(i);
+    if(rank){var medal=document.createElement('span');medal.className='rank-medal';medal.textContent=rank.rank;ac.appendChild(medal);}
     var hint = document.createElement('span'); hint.className = 'avatar-hint'; hint.textContent = '玩家 ' + (i+1);
     ac.append(av,hint);
     var tw = document.createElement('div'); tw.className = 'total-wrap';
     var total = document.createElement('div'); total.className = 'total-score mono ' + scoreClass(totals[i]); total.id = 'total-' + i; total.textContent = totals[i];
-    var title = document.createElement('div'); title.className = 'player-title'; title.textContent = getPlayerTitle(i);
+    var playerTitle=getPlayerTitle(i), title = document.createElement('div'); title.className = 'player-title'+((!rounds.length||playerTitle.indexOf('再赢一轮')===0)?' empty':''); title.textContent = playerTitle;
     tw.append(total,title);
     var wc = document.createElement('div'); wc.className = 'wheel-cell';
     var wheel = document.createElement('div'); wheel.className = 'wheel-container'; wheel.id = 'wheel-' + i;
@@ -429,49 +487,101 @@ function submitScores(){
   rounds.push(settledScores); roundMeta.push(meta);
   for(var i=0;i<playerCount;i++){var old=totals[i];totals[i]+=settledScores[i];animateTotal(i,old,totals[i]);var flash=document.getElementById('flash-'+i);flash.className='score-flash '+(settledScores[i]>=0?'pos':'neg');void flash.offsetWidth;flash.classList.add('show');}
   pendingRoundMeta=null; updateSubmitMode(); for(var j=0;j<playerCount;j++)setWheelValue(j,0,true); resetAutoCalc(); saveState(); renderHistory(); refreshPlayerTitles();
-  var analysis=analyzeRound(settledScores,meta); playSettlementSound(analysis.tier); if(settings.effects)showSettlement(settledScores,meta,analysis); else showToast(analysis.title+' · '+analysis.caption);
+  var analysis=analyzeRound(settledScores,meta); playSettlementSound(analysis.tier,false,analysis.title); if(settings.effects)showSettlement(settledScores,meta,analysis); else showToast(analysis.title+' · '+analysis.caption);
 }
 function animateTotal(idx,from,to){var el=document.getElementById('total-'+idx),start=performance.now();el.classList.add('animating');function frame(now){var p=Math.min((now-start)/500,1),ease=1-Math.pow(1-p,3),v=Math.round(from+(to-from)*ease);el.textContent=v;el.className='total-score mono animating '+scoreClass(v);if(p<1)requestAnimationFrame(frame);else el.classList.remove('animating');}requestAnimationFrame(frame);}
-function refreshPlayerTitles(){for(var i=0;i<playerCount;i++){var row=document.getElementById('row-'+i);if(row)row.querySelector('.player-title').textContent=getPlayerTitle(i);}}
+function refreshPlayerTitles(){renderPlayers(true);}
 
 function getStreak(idx){var sign=0,count=0;for(var r=rounds.length-1;r>=0;r--){var v=getScores(rounds[r])[idx]||0,current=v>0?1:v<0?-1:0;if(!current)break;if(!sign)sign=current;if(current!==sign)break;count++;}return {sign:sign,count:count};}
+function getStreakAt(idx,end){var sign=0,count=0;for(var r=end;r>=0;r--){var v=getScores(rounds[r])[idx]||0,current=v>0?1:v<0?-1:0;if(!current)break;if(!sign)sign=current;if(current!==sign)break;count++;}return {sign:sign,count:count};}
 function getLossStreakBeforeLatest(idx){var count=0;for(var r=rounds.length-2;r>=0;r--){var v=getScores(rounds[r])[idx]||0;if(v<0)count++;else break;}return count;}
 function getBombWins(idx){var n=0;for(var i=0;i<roundMeta.length;i++)if(roundMeta[i]&&roundMeta[i].type==='bomb'&&roundMeta[i].winner===idx)n++;return n;}
 function getBestRound(idx){var best=0;for(var r=0;r<rounds.length;r++)best=Math.max(best,getScores(rounds[r])[idx]||0);return best;}
-function getPlayerTitle(idx){var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),lead=rounds.length>=5&&totals[idx]===Math.max.apply(null,totals);if(s.sign>0&&s.count>=5)return '👑 LEGENDARY · '+s.count+'连胜';if(s.sign>0&&s.count===4)return '⚔ RAMPAGE · 四连';if(s.sign>0&&s.count===3)return '⚡ TRIPLE WIN';if(s.sign>0&&s.count===2)return '🔥 DOUBLE WIN';if(bombs>=5)return '💣 MEGA BOMBER ×'+bombs;if(bombs>=3)return '💣 爆破王牌 ×'+bombs;if(s.sign<0&&s.count>=5)return '🛡 COMEBACK READY';if(s.sign<0&&s.count>=3)return '↗ 逆风蓄力';if(best>=10)return '🎯 ACE · 单局+'+best;if(lead)return '◆ MVP · 当前领跑';return '';}
+function getWins(idx){var n=0;for(var r=0;r<rounds.length;r++)if((getScores(rounds[r])[idx]||0)>0)n++;return n;}
+function getOverallRank(idx){if(!rounds.length)return 0;var unique=Array.from(new Set(totals.slice().sort(function(a,b){return b-a;})));return unique.indexOf(totals[idx])+1;}
+function getRankInfo(idx){var rank=getOverallRank(idx);return rank&&rank<=3?{rank:rank,label:rank===1?'第一名':rank===2?'第二名':'第三名'}:null;}
+function getPlayerTitle(idx){
+  if(!rounds.length)return '等待首轮开张';
+  var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx);
+  if(s.sign>0&&s.count>=5)return '👑 天下无双 · '+s.count+'连胜';
+  if(s.sign>0&&s.count===4)return '⚔ 四连主宰';
+  if(s.sign>0&&s.count===3)return '⚡ 三连制霸';
+  if(s.sign>0&&s.count===2)return '🔥 双响连捷';
+  if(bombs>=5)return '💣 爆破宗师 ×'+bombs;
+  if(bombs>=3)return '💣 爆破王牌 ×'+bombs;
+  if(s.sign<0&&s.count>=5)return '🛡 绝地蓄力';
+  if(s.sign<0&&s.count>=3)return '↗ 逆风蓄力';
+  if(best>=10)return '🎯 超神一击 · +'+best;
+  if(rank&&rank.rank===1)return '◆ 领跑全桌';
+  return '再赢一轮解锁称号';
+}
+function getRoundRoleTitle(idx,scores,meta,roundIndex){
+  var score=scores[idx]||0,max=Math.max.apply(null,scores),streak=getStreakAt(idx,roundIndex),losses=0;
+  for(var r=roundIndex-1;r>=0;r--){if((getScores(rounds[r])[idx]||0)<0)losses++;else break;}
+  if(meta&&meta.type==='bomb'&&meta.winner===idx)return meta.rate===4?'终极爆破':'精准爆破';
+  if(score>0){if(losses>=3)return '绝境翻盘';if(streak.count>=5)return '天下无双';if(streak.count===4)return '四连主宰';if(streak.count===3)return '三连制霸';if(streak.count===2)return '双响连捷';if(max>=10)return '超神一击';if(max>=8)return '势不可挡';if(max>=6)return '横扫全桌';if(max>=4)return '火力全开';return '小试锋芒';}
+  if(score===0)return '滴水不漏';
+  if(score<=-4)return '逆风坚守';
+  if(score<=-2)return '稳住阵脚';
+  return '小幅回撤';
+}
 function analyzeRound(scores,meta){
   var winners=[],losers=[];scores.forEach(function(v,i){if(v>0)winners.push(i);else if(v<0)losers.push(i);});
   var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption,callout;
   var winner=winners.length===1?winners[0]:-1,streak=winner>=0?getStreak(winner):{count:0},priorLoss=winner>=0?getLossStreakBeforeLatest(winner):0;
   var beforeTotals=totals.map(function(v,i){return v-scores[i];}),wasLast=winner>=0&&rounds.length>3&&beforeTotals[winner]===Math.min.apply(null,beforeTotals);
-  if(meta&&meta.type==='bomb'){tier='bomb';callout=meta.rate===4?'MEGA BOMB':'DOUBLE CHARGE';title=meta.rate===4?'满屏爆金币':'双倍引爆';caption=players[meta.winner]+' 启动全桌收取，每人贡献 '+meta.rate+' 分。';}
-  else if(winners.length>1){callout=winners.length>=3?'TRIPLE SYNC':'DOUBLE SYNC';title=winners.length>=3?'三核联动':'双核联动';caption=winners.map(function(i){return players[i];}).join('、')+' 完成本轮联合接管。';}
-  else if(priorLoss>=3||wasLast&&max>=6){callout='CLUTCH';title='绝境翻盘';caption=players[winner]+' 从逆风位翻回牌桌，终结 '+Math.max(priorLoss,1)+' 轮低迷。';}
-  else if(tier==='epic'){callout='LEGENDARY';title='超神时刻';caption='单轮 +'+max+'，全桌进入高能预警。';}
-  else if(streak.count>=5){callout='LEGENDARY';title='传奇连胜';caption=players[winner]+' 已连续拿下 '+streak.count+' 轮。';}
-  else if(streak.count===4){callout='RAMPAGE';title='四连主宰';caption='节奏完全接管，连胜还在继续。';}
-  else if(streak.count===3){callout='TRIPLE WIN';title='三连制霸';caption='连续三轮得手，牌桌风向已经改变。';}
-  else if(streak.count===2){callout='DOUBLE WIN';title='双响连捷';caption='连续两轮进账，状态开始升温。';}
-  else if(tier==='large'){callout='UNSTOPPABLE';title='无人可挡';caption='单轮 +'+max+'，这一波节奏拉满。';}
-  else if(tier==='medium'){callout='DOMINATING';title='火力全开';caption='稳定拿下 +'+max+'，主动权正在扩大。';}
-  else {callout='FIRST SCORE';title='小试锋芒';caption='先拿 +'+max+'，优势从第一枚筹码开始。';}
+  if(meta&&meta.type==='bomb'){tier='bomb';callout=meta.rate===4?'终极爆破':'精准爆破';title=meta.rate===4?'满屏爆金币':'全桌收租';caption=players[meta.winner]+' 一键收取，每人贡献 '+meta.rate+' 分。';}
+  else if(winners.length>1){callout=winners.length>=3?'三方联动':'双星联手';title=winners.length>=3?'三核联动':'双核联动';caption=winners.map(function(i){return players[i];}).join('、')+' 完成本轮联合接管。';}
+  else if(priorLoss>=3||wasLast&&max>=6){callout='绝地反击';title='绝境翻盘';caption=players[winner]+' 从逆风位翻回牌桌，终结 '+Math.max(priorLoss,1)+' 轮低迷。';}
+  else if(tier==='epic'){callout='天下无双';title='超神时刻';caption='单轮 +'+max+'，全桌进入高能预警。';}
+  else if(streak.count>=5){callout='天下无双';title='传奇连胜';caption=players[winner]+' 已连续拿下 '+streak.count+' 轮。';}
+  else if(streak.count===4){callout='主宰牌桌';title='四连主宰';caption='节奏完全接管，连胜还在继续。';}
+  else if(streak.count===3){callout='三连制霸';title='三连制霸';caption='连续三轮得手，牌桌风向已经改变。';}
+  else if(streak.count===2){callout='双响连捷';title='双响连捷';caption='连续两轮进账，状态开始升温。';}
+  else if(tier==='large'){callout='势不可挡';title='无人可挡';caption='单轮 +'+max+'，这一波节奏拉满。';}
+  else if(tier==='medium'){callout='火力全开';title='火力全开';caption='稳定拿下 +'+max+'，主动权正在扩大。';}
+  else {callout='首开纪录';title='小试锋芒';caption='先拿 +'+max+'，优势从第一枚筹码开始。';}
   if(winners.length===1&&PERSONA[players[winners[0]]])caption=PERSONA[players[winners[0]]]+' · '+caption;
-  var achievements=[];winners.forEach(function(i){var s=getStreak(i),bombs=getBombWins(i);if(s.count>=2)achievements.push('连胜 '+s.count+' ROUND');if(bombs===3)achievements.push('解锁 爆破王牌');if(bombs>=5)achievements.push('MEGA BOMBER ×'+bombs);});if(tier==='epic'&&losers.length===playerCount-1)achievements.push('ACE · 全桌清扫');if(priorLoss>=3)achievements.push('COMEBACK · 终结连冷');
-  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,achievement:achievements.join(' · ')||('MVP · '+(winner>=0?players[winner]:'本轮组合'))};
+  var achievements=[];winners.forEach(function(i){var s=getStreak(i),bombs=getBombWins(i);if(s.count>=2)achievements.push(s.count+' 连胜');if(bombs===3)achievements.push('解锁爆破王牌');if(bombs>=5)achievements.push('爆破宗师 ×'+bombs);});if(tier==='epic'&&losers.length===playerCount-1)achievements.push('本轮王牌 · 横扫全桌');if(priorLoss>=3)achievements.push('终结连败 · 强势回归');
+  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,achievement:achievements.join(' · ')||('本轮最佳 · '+(winner>=0?players[winner]:'组合'))};
 }
-function resultCard(idx,score,winner){return '<div class="result-card '+(winner?'winner':'')+'"><div class="result-avatar">'+escapeHTML(players[idx])+'</div><div class="result-score">'+signed(score)+'</div></div>';}
+function resultCard(idx,scores,winner,meta){var score=scores[idx];return '<div class="result-card '+(winner?'winner':'')+'" data-player="'+idx+'"><div class="result-avatar">'+escapeHTML(players[idx])+'</div><div class="result-score">'+signed(score)+'</div><div class="result-role">'+escapeHTML(getRoundRoleTitle(idx,scores,meta,rounds.length-1))+'</div></div>';}
 function showSettlement(scores,meta,a){
-  clearTimeout(settlementTimer);clearTimeout(settlementExitTimer);var root=document.getElementById('settlement'),duration=a.tier==='epic'?2800:a.tier==='bomb'?2600:a.tier==='large'?2400:a.tier==='medium'?2100:1800;root.className='settlement active effect-'+a.tier;root.setAttribute('aria-hidden','false');root.style.setProperty('--settlement-duration',duration+'ms');
-  document.getElementById('settlementKicker').textContent=meta&&meta.type==='bomb'?'BOMB EVENT':'ROUND '+rounds.length+' HIGHLIGHT';
+  clearTimeout(settlementTimer);clearTimeout(settlementExitTimer);var root=document.getElementById('settlement'),duration=a.tier==='epic'?3100:a.tier==='bomb'?3000:a.tier==='large'?2700:a.tier==='medium'?2400:2100;root.className='settlement active effect-'+a.tier;root.setAttribute('aria-hidden','false');root.style.setProperty('--settlement-duration',duration+'ms');
+  document.getElementById('settlementKicker').textContent=meta&&meta.type==='bomb'?'炸弹战报':'第 '+rounds.length+' 轮战报';
   document.getElementById('settlementRank').textContent=a.callout;document.getElementById('settlementTitle').textContent=a.title;document.getElementById('settlementCopy').textContent=a.caption;document.getElementById('settlementAchievement').textContent=a.achievement;
-  document.getElementById('winnerStack').innerHTML=a.winners.map(function(i){return resultCard(i,scores[i],true);}).join('');
-  document.getElementById('loserStack').innerHTML=a.losers.map(function(i){return resultCard(i,scores[i],false);}).join('');
+  document.getElementById('winnerStack').innerHTML=a.winners.map(function(i){return resultCard(i,scores,true,meta);}).join('');
+  document.getElementById('loserStack').innerHTML=a.losers.map(function(i){return resultCard(i,scores,false,meta);}).join('');
   var transfer=document.getElementById('transferZone'),token=a.tier==='bomb'?'◆':a.tier==='epic'?'✦':'●';transfer.innerHTML='';for(var t=0;t<4;t++){var coin=document.createElement('span');coin.className='flying-token';coin.textContent=token;transfer.appendChild(coin);}
   var weather=document.getElementById('weather');weather.innerHTML='';if(a.tier==='epic'){for(var i=0;i<34;i++){var s=document.createElement('span');s.className='snow';s.textContent=i%3?'❄':'✦';s.style.left=Math.random()*100+'%';s.style.fontSize=(8+Math.random()*13)+'px';s.style.animationDuration=(1.8+Math.random()*2.2)+'s';s.style.animationDelay=(-Math.random()*3)+'s';weather.appendChild(s);}}else if(a.tier==='large'){for(var g=0;g<8;g++){var gust=document.createElement('span');gust.className='gust';gust.textContent=g%2?'〰':'≈';gust.style.top=(12+g*11)+'%';gust.style.animationDelay=(-g*.18)+'s';weather.appendChild(gust);}}if(a.tier==='bomb'||a.tier==='medium'){for(var p=0;p<(a.tier==='bomb'?24:10);p++){var spark=document.createElement('span');spark.className='spark';spark.textContent=p%3?'✦':'◆';spark.style.left=(35+Math.random()*30)+'%';spark.style.top=(35+Math.random()*25)+'%';spark.style.setProperty('--sx',((Math.random()-.5)*280)+'px');spark.style.setProperty('--sy',((Math.random()-.5)*360)+'px');spark.style.animationDelay=(-Math.random())+'s';weather.appendChild(spark);}}
+  requestAnimationFrame(function(){runSettlementMotion(a,scores);});
   settlementTimer=setTimeout(function(){root.classList.remove('active');root.classList.add('leaving');settlementExitTimer=setTimeout(function(){closeSettlement();if(!settings.sound&&!soundHintShown){soundHintShown=true;showToast('🔇 结算音效默认关闭，可在设置里试听开启');}},340);},duration);
 }
-function closeSettlement(){clearTimeout(settlementTimer);clearTimeout(settlementExitTimer);var root=document.getElementById('settlement');root.className='settlement';root.setAttribute('aria-hidden','true');document.getElementById('weather').innerHTML='';document.getElementById('transferZone').innerHTML='';}
-function playSettlementSound(tier,force){if(!settings.sound&&!force)return false;try{var C=window.AudioContext||window.webkitAudioContext,ctx=new C(),now=ctx.currentTime,master=ctx.createGain(),notes=tier==='epic'?[196,392,523,659,784]:tier==='bomb'?[110,165,330,660]:tier==='large'?[330,440,554,659]:tier==='medium'?[440,554,659]:[587,784];master.gain.setValueAtTime(.5,now);master.gain.exponentialRampToValueAtTime(.0001,now+1.35);master.connect(ctx.destination);if(ctx.state==='suspended')ctx.resume();notes.forEach(function(freq,i){var osc=ctx.createOscillator(),gain=ctx.createGain(),start=now+i*.1;osc.type=tier==='bomb'?'sawtooth':tier==='epic'?'triangle':'sine';osc.frequency.setValueAtTime(freq,start);if(tier==='bomb'&&i===0)osc.frequency.exponentialRampToValueAtTime(70,start+.38);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(i===0?.34:.22,start+.018);gain.gain.exponentialRampToValueAtTime(.0001,start+.46);osc.connect(gain).connect(master);osc.start(start);osc.stop(start+.5);});if(tier==='bomb'||tier==='epic'){var length=Math.floor(ctx.sampleRate*.42),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(var n=0;n<length;n++)data[n]=(Math.random()*2-1)*(1-n/length);var noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),noiseGain=ctx.createGain();noise.buffer=buffer;filter.type=tier==='bomb'?'lowpass':'highpass';filter.frequency.value=tier==='bomb'?520:1800;noiseGain.gain.setValueAtTime(.18,now);noiseGain.gain.exponentialRampToValueAtTime(.0001,now+.42);noise.connect(filter).connect(noiseGain).connect(master);noise.start(now);noise.stop(now+.43);}setTimeout(function(){ctx.close();},1600);return true;}catch(e){showToast('当前设备阻止了音效，请检查静音模式');return false;}}
+function closeSettlement(){clearTimeout(settlementTimer);clearTimeout(settlementExitTimer);var root=document.getElementById('settlement');root.className='settlement';root.setAttribute('aria-hidden','true');document.getElementById('weather').innerHTML='';document.getElementById('transferZone').innerHTML='';document.getElementById('motionLayer').innerHTML='';}
+function runSettlementMotion(a,scores){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var root=document.getElementById('settlement'),panel=root.querySelector('.settlement-panel'),winner=root.querySelector('.result-card.winner'),title=document.getElementById('settlementTitle'),flash=document.getElementById('screenFlash'),layer=document.getElementById('motionLayer');if(!winner)return;
+  panel.animate([{transform:'scale(.78) translateY(34px)',opacity:0,filter:'blur(8px)'},{transform:'scale(1.035) translateY(-3px)',opacity:1,filter:'blur(0)',offset:.62},{transform:'scale(1) translateY(0)',opacity:1}],{duration:620,easing:'cubic-bezier(.16,1,.3,1)'});
+  title.animate([{transform:'scale(.55)',letterSpacing:'.18em',opacity:0},{transform:'scale(1.13)',letterSpacing:'-.03em',opacity:1,offset:.7},{transform:'scale(1)',letterSpacing:'-.05em',opacity:1}],{duration:760,delay:130,easing:'cubic-bezier(.2,.9,.2,1)'});
+  flash.animate([{opacity:0},{opacity:a.tier==='epic'||a.tier==='bomb'?.85:.45,offset:.18},{opacity:0}],{duration:a.tier==='epic'||a.tier==='bomb'?720:460,delay:260,easing:'ease-out'});
+  var rootRect=root.getBoundingClientRect(),winRect=winner.getBoundingClientRect(),tx=winRect.left+winRect.width/2-rootRect.left,ty=winRect.top+winRect.height/2-rootRect.top;
+  root.querySelectorAll('.loser-stack .result-card').forEach(function(card,li){var from=card.getBoundingClientRect(),fx=from.left+from.width/2-rootRect.left,fy=from.top+from.height/2-rootRect.top,idx=parseInt(card.dataset.player,10),count=Math.min(5,Math.max(2,Math.abs(scores[idx]||0)));for(var c=0;c<count;c++){var orb=document.createElement('span');orb.className='score-orb';orb.textContent='+';orb.style.left=(fx-7)+'px';orb.style.top=(fy-7)+'px';layer.appendChild(orb);orb.animate([{transform:'translate(0,0) scale(.45)',opacity:0},{opacity:1,offset:.16},{transform:'translate('+((tx-fx)*.56)+'px,'+((ty-fy)*.25-42)+'px) scale(1.15)',opacity:1,offset:.58},{transform:'translate('+(tx-fx)+'px,'+(ty-fy)+'px) scale(.35)',opacity:0}],{duration:850,delay:300+li*120+c*78,easing:'cubic-bezier(.25,.7,.2,1)',fill:'forwards'});}}
+  );
+  var ring=document.createElement('span');ring.className='impact-ring';ring.style.left=(tx-23)+'px';ring.style.top=(ty-23)+'px';layer.appendChild(ring);ring.animate([{transform:'scale(.4)',opacity:0},{opacity:1,offset:.18},{transform:'scale(3.2)',opacity:0}],{duration:720,delay:850,easing:'ease-out',fill:'forwards'});
+  if(a.tier==='bomb')panel.animate([{transform:'translateX(0)'},{transform:'translateX(-7px) rotate(-.5deg)'},{transform:'translateX(7px) rotate(.5deg)'},{transform:'translateX(-3px)'},{transform:'translateX(0)'}],{duration:360,delay:780,easing:'ease-out'});
+}
+function speakTitle(title,force){if((!settings.sound&&!force)||!window.speechSynthesis||!title)return;try{window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(title);u.lang='zh-CN';u.rate=.88;u.pitch=.88;u.volume=.95;setTimeout(function(){window.speechSynthesis.speak(u);},280);}catch(e){}}
+function playSettlementSound(tier,force,title){
+  if(!settings.sound&&!force)return false;
+  try{
+    var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;if(!audioContext||audioContext.state==='closed')audioContext=new C();var ctx=audioContext,now=ctx.currentTime+.025;
+    if(ctx.state==='suspended')ctx.resume();var master=ctx.createGain(),compressor=ctx.createDynamicsCompressor();master.gain.setValueAtTime(.72,now);master.gain.exponentialRampToValueAtTime(.0001,now+1.65);compressor.threshold.value=-18;compressor.ratio.value=8;master.connect(compressor).connect(ctx.destination);
+    var notes=tier==='epic'?[196,392,523,659,784,1047]:tier==='bomb'?[82,110,220,440,660]:tier==='large'?[262,392,523,659]:tier==='medium'?[330,440,554,659]:[440,587,784];
+    notes.forEach(function(freq,i){var osc=ctx.createOscillator(),gain=ctx.createGain(),start=now+i*.075;osc.type=tier==='bomb'?(i<2?'sawtooth':'square'):i%2?'triangle':'sine';osc.frequency.setValueAtTime(freq,start);if(tier==='bomb'&&i===0)osc.frequency.exponentialRampToValueAtTime(48,start+.5);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(i===0?.42:.26,start+.012);gain.gain.exponentialRampToValueAtTime(.0001,start+.58);osc.connect(gain).connect(master);osc.start(start);osc.stop(start+.62);});
+    var length=Math.floor(ctx.sampleRate*.5),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(var n=0;n<length;n++)data[n]=(Math.random()*2-1)*Math.pow(1-n/length,2);var noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),noiseGain=ctx.createGain();noise.buffer=buffer;filter.type=tier==='bomb'?'lowpass':'bandpass';filter.frequency.value=tier==='bomb'?420:1500;filter.Q.value=.7;noiseGain.gain.setValueAtTime(tier==='bomb'?.34:.16,now);noiseGain.gain.exponentialRampToValueAtTime(.0001,now+.5);noise.connect(filter).connect(noiseGain).connect(master);noise.start(now);noise.stop(now+.52);
+    if(!force)speakTitle(title);return true;
+  }catch(e){showToast('当前设备阻止了音效，请检查静音模式');return false;}
+}
 
 function renderHistory(){
   var root=document.getElementById('historyList'),count=document.getElementById('roundCount'),more=document.getElementById('showMoreBtn');
@@ -480,7 +590,7 @@ function renderHistory(){
   indices.forEach(function(idx){var scores=getScores(rounds[idx]),meta=roundMeta[idx],el=document.createElement('div');el.className='history-item'+(idx===rounds.length-1?' newest':'');
     var rn=document.createElement('div');rn.className='history-round mono';rn.textContent='R'+(idx+1);if(meta&&meta.type==='bomb'){var bombTag=document.createElement('b');bombTag.textContent='💣 '+meta.rate;rn.appendChild(bombTag);}
     var sc=document.createElement('div');sc.className='history-scores';sc.style.setProperty('--players',playerCount);
-    for(var i=0;i<playerCount;i++){var item=document.createElement('div');item.className='history-score-item';var av=document.createElement('div');av.className='mini-avatar';av.textContent=players[i];var val=document.createElement('span');val.className='value';val.textContent=signed(scores[i]);val.style.color=scores[i]>0?'var(--coral)':scores[i]<0?'var(--mint)':'#777188';item.append(av,val);sc.appendChild(item);}
+    for(var i=0;i<playerCount;i++){var item=document.createElement('div');item.className='history-score-item'+(scores[i]>0?' is-winner':'');var av=document.createElement('button');av.type='button';av.className='mini-avatar';av.textContent=players[i];av.setAttribute('aria-label','查看'+players[i]+'的称号历史');(function(playerIdx){av.onclick=function(){openPlayerProfile(playerIdx);};})(i);var info=document.createElement('span');info.className='history-score-info';var val=document.createElement('span');val.className='value';val.textContent=signed(scores[i]);val.style.color=scores[i]>0?'var(--coral)':scores[i]<0?'var(--mint)':'#777188';var role=document.createElement('span');role.className='round-role';role.textContent=getRoundRoleTitle(i,scores,meta,idx);info.append(val,role);item.append(av,info);sc.appendChild(item);}
     var action=document.createElement('div');if(idx===rounds.length-1){var undo=document.createElement('button');undo.type='button';undo.className='undo-btn';undo.textContent='撤销';undo.onclick=undoLast;action.appendChild(undo);}el.append(rn,sc,action);root.appendChild(el);
   });more.hidden=rounds.length<=5;more.textContent=showAll?'收起':'显示全部（'+rounds.length+' 轮）';
 }
@@ -491,15 +601,34 @@ function openIdentityModal(idx){editingPlayer=idx;var grid=document.getElementBy
 function selectSymbol(symbol){players[editingPlayer]=symbol;saveState();closeModal('identityModal');renderPlayers(true);renderHistory();renderIdentityList();}
 function limitSymbol(raw){raw=raw.replace(/[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/g,'').trim();if(!raw)return '';if(window.Intl&&Intl.Segmenter){var parts=[],segments=new Intl.Segmenter('zh-CN',{granularity:'grapheme'}).segment(raw);for(var item of segments){parts.push(item.segment);if(parts.length===2)break;}return parts.join('');}return Array.from(raw).slice(0,2).join('');}
 function saveCustomSymbol(){var symbol=limitSymbol(document.getElementById('customSymbol').value);if(!symbol){showToast('先写一个身份标记');return;}selectSymbol(symbol);}
+function openPlayerProfile(idx){viewingPlayer=idx;document.getElementById('profileTitle').textContent=players[idx]+' · 个人战报';renderPlayerProfile(idx);openModal('profileModal');}
+function renderPlayerProfile(idx){
+  var root=document.getElementById('profileContent'),rank=getRankInfo(idx),wins=getWins(idx),best=getBestRound(idx),bombs=getBombWins(idx),records=[];
+  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),score=scores[idx]||0;records.push('<div class="title-record"><span class="round">R'+(r+1)+'</span><b>'+escapeHTML(getRoundRoleTitle(idx,scores,roundMeta[r],r))+'</b><span class="score" style="color:'+(score>0?'var(--coral)':score<0?'var(--mint)':'#777188')+'">'+signed(score)+'</span></div>');}
+  var rankCopy=!rounds.length?'新牌桌 · 等待第一轮称号':(rank?rank.label:'当前第 '+getOverallRank(idx)+' 名')+' · 总分 '+totals[idx];
+  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">称号历史</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有称号记录<br>完成第一轮后，这里会生成每轮角色称号</div>');
+}
 function openBombModal(){bombWinner=0;bombRate=2;renderBombPicker();openModal('bombModal');}
 function renderBombPicker(){var wp=document.getElementById('bombWinnerPicker');wp.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='picker-option'+(i===bombWinner?' selected':'');b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){bombWinner=idx;renderBombPicker();};})(i);wp.appendChild(b);}var rp=document.getElementById('bombRatePicker');rp.innerHTML='';[2,4].forEach(function(rate){var b=document.createElement('button');b.type='button';b.className='picker-option'+(rate===bombRate?' selected':'');b.textContent='每人 '+rate+' 分';b.onclick=function(){bombRate=rate;renderBombPicker();};rp.appendChild(b);});document.getElementById('bombPreview').textContent=players[bombWinner]+' 获得 +'+(bombRate*(playerCount-1))+'，其余每人 -'+bombRate+'。炸弹会单独记入历史和称号。';}
-function applyBomb(){for(var i=0;i<playerCount;i++)setWheelValue(i,i===bombWinner?bombRate*(playerCount-1):-bombRate,true);pendingRoundMeta={type:'bomb',winner:bombWinner,rate:bombRate};userTouched=makeArray(playerCount,true);clearAutoHighlight();updateSubmitMode();closeModal('bombModal');showToast('炸弹分数已填好，确认后提交');}
-function updateSubmitMode(){var btn=document.getElementById('submitBtn');btn.classList.toggle('bomb-ready',!!pendingRoundMeta);btn.textContent=pendingRoundMeta?'确认炸弹':'提交分数';}
+function applyBomb(){for(var i=0;i<playerCount;i++)setWheelValue(i,i===bombWinner?bombRate*(playerCount-1):-bombRate,true);pendingRoundMeta={type:'bomb',winner:bombWinner,rate:bombRate};userTouched=makeArray(playerCount,true);clearAutoHighlight();closeModal('bombModal');submitScores();}
+function updateSubmitMode(){var btn=document.getElementById('submitBtn');btn.classList.remove('bomb-ready');btn.textContent='提交分数';}
+
+function openQuickModal(){quickWinner=0;var highest=Math.max.apply(null,totals);if(rounds.length)quickWinner=totals.indexOf(highest);renderQuickPicker();openModal('quickModal');}
+function renderQuickPicker(){
+  var wp=document.getElementById('quickWinnerPicker');wp.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='picker-option'+(i===quickWinner?' selected':'');b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){quickWinner=idx;renderQuickPicker();};})(i);wp.appendChild(b);}
+  var sp=document.getElementById('quickScorePicker');sp.innerHTML='';[2,3,4,6,8,10].filter(function(v){return v<=getRange();}).forEach(function(score){var b=document.createElement('button');b.type='button';b.className='quick-score';b.innerHTML='+'+score+'<small>自动均摊</small>';b.onclick=function(){applyQuickScore(score);};sp.appendChild(b);});document.getElementById('quickPreview').textContent='选定 '+players[quickWinner]+' 为赢家。点击得分后自动均摊，回到牌桌仍可微调。';
+}
+function applyQuickScore(score){
+  var losers=[];for(var i=0;i<playerCount;i++)if(i!==quickWinner)losers.push(i);var base=Math.floor(score/losers.length),remainder=score%losers.length,start=rounds.length%losers.length;
+  for(var p=0;p<playerCount;p++)setWheelValue(p,p===quickWinner?score:0,true);
+  for(var j=0;j<losers.length;j++){var extra=((j-start+losers.length)%losers.length)<remainder?1:0;setWheelValue(losers[j],-(base+extra),true);}
+  pendingRoundMeta=null;userTouched=makeArray(playerCount,true);clearAutoHighlight();updateSubmitMode();closeModal('quickModal');showToast(players[quickWinner]+' +'+score+' 已均摊，可微调后提交');
+}
 
 function openSettings(){renderIdentityList();updateSettingsUI();openModal('settingsModal');}
 function renderIdentityList(){var root=document.getElementById('identityList');if(!root)return;root.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='identity-item';b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){closeModal('settingsModal');openIdentityModal(idx);};})(i);root.appendChild(b);}}
-function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'){if(settings.sound){showToast('🔊 音效已开启 · 正在试听');playSettlementSound('medium',true);}else showToast('🔇 音效已关闭');}}
-function previewSound(){showToast('🔊 试听：LEGENDARY');playSettlementSound('epic',true);}
+function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'){if(settings.sound){showToast('🔊 音效与中文播报已开启');playSettlementSound('medium',true);setTimeout(function(){speakTitle('火力全开');},180);}else{if(window.speechSynthesis)window.speechSynthesis.cancel();showToast('🔇 音效已关闭');}}}
+function previewSound(){showToast('🔊 试听：超神时刻');playSettlementSound('epic',true);setTimeout(function(){speakTitle('超神时刻',true);},180);}
 function updateSettingsUI(){var effects=document.getElementById('effectsSwitch'),sound=document.getElementById('soundSwitch');effects.classList.toggle('on',settings.effects);sound.classList.toggle('on',settings.sound);effects.setAttribute('aria-pressed',String(settings.effects));sound.setAttribute('aria-pressed',String(settings.sound));}
 function openNewGameFromSettings(){closeModal('settingsModal');openNewGameModal();}
 function openNewGameModal(){pendingCount=playerCount;renderCountPicker();openModal('newGameModal');}
