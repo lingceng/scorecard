@@ -112,6 +112,12 @@ img {
 <li><code class="notranslate">localStorage</code> 持久化</li>
 <li>Google Fonts（DM Mono + Noto Sans SC）</li>
 </ul>
+<h2 dir="auto">双端维护</h2>
+<p dir="auto">两端共用规则与体验基线位于 <a href="./shared/"><code class="notranslate">shared/</code></a>。修改称号、计分范围或公共音频后运行：</p>
+<div class="highlight highlight-source-shell" dir="auto"><pre class="notranslate">node scripts/sync-mini-shared.mjs
+node scripts/sync-mini-shared.mjs --check
+node tests/game-rules.test.js</pre></div>
+<p dir="auto">小程序提交时同时提交生成的 <code class="notranslate">shared/game-rules.js</code>、<code class="notranslate">docs/双端体验基线.md</code> 和有效音频副本。</p>
 </div>
 </body>
 </html>
