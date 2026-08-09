@@ -77,9 +77,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .rank-1 .rank-crown { color: #ffd76b; transform: rotate(5deg) scale(1.08); }
 .rank-2 .rank-crown { color: #c7d5e1; }
 .rank-3 .rank-crown { color: #d98d59; }
-.win-stamp { position: absolute; z-index: 6; right: -10px; bottom: 7px; width: 42px; height: 42px; display: grid; place-items: center; border: 2px solid #ff686f; border-radius: 50%; background: transparent; color: #ff686f; font-size: 18px; font-weight: 900; line-height: 1; text-shadow: 0 0 8px rgba(255,67,79,.34); filter: drop-shadow(0 4px 0 rgba(112,22,31,.5)) drop-shadow(0 8px 7px rgba(44,5,12,.3)); transform: rotate(-11deg); animation: winStampIn .56s cubic-bezier(.16,1,.3,1) both; pointer-events: none; }
+.win-stamp { position: absolute; z-index: 6; right: -10px; bottom: 7px; width: 42px; height: 42px; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 50%; background: transparent; color: rgba(255,104,111,.62); font-size: 18px; font-weight: 900; line-height: 1; transform: rotate(-11deg); animation: winStampIn .56s cubic-bezier(.16,1,.3,1) both; pointer-events: none; }
 body.settling .win-stamp { opacity: 0; animation: none; }
-@keyframes winStampIn { from { opacity: 0; transform: translateY(-12px) rotate(-26deg) scale(3.1); filter: blur(4px) drop-shadow(0 0 0 #571019); } 72% { opacity: 1; transform: translateY(2px) rotate(-7deg) scale(.88); filter: blur(0) drop-shadow(0 7px 0 #571019); } to { transform: translateY(0) rotate(-11deg) scale(1); } }
+@keyframes winStampIn { from { opacity: 0; transform: translateY(-12px) rotate(-26deg) scale(3.1); filter: blur(4px); } 72% { opacity: 1; transform: translateY(2px) rotate(-7deg) scale(.88); filter: blur(0); } to { transform: translateY(0) rotate(-11deg) scale(1); } }
 .avatar-hint { max-width: 72px; overflow: hidden; color: #777188; font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
 .total-wrap { position: relative; min-width: 0; text-align: center; }
 .total-score { font-size: 36px; font-weight: 500; line-height: 1.05; letter-spacing: -.05em; transition: color .25s ease; }
