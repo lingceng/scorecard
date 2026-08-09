@@ -329,7 +329,7 @@ body.settling .win-stamp { opacity: 0; animation: none; }
   <div class="sheet">
     <div class="sheet-head"><h2 id="settingsTitle">牌桌设置</h2><button class="close-btn" type="button" onclick="closeModal('settingsModal')">✕</button></div>
     <div class="setting-row"><div class="setting-copy"><b>沉浸结算</b><span>显示收租关系、称号和天气效果</span></div><button class="switch" id="effectsSwitch" type="button" aria-label="切换沉浸结算" onclick="toggleSetting('effects')"></button></div>
-    <div class="setting-row"><div class="setting-copy"><b>结算音效</b><span>默认关闭，可先试听确认设备声音</span></div><div class="setting-controls"><button class="preview-btn" type="button" onclick="previewSound()">试听</button><button class="switch" id="soundSwitch" type="button" aria-label="切换结算音效" onclick="toggleSetting('sound')"></button></div></div>
+    <div class="setting-row"><div class="setting-copy"><b>梗音效</b><span>固定短句播报，不朗读分数和说明</span></div><div class="setting-controls"><button class="preview-btn" type="button" onclick="previewSound()">试听</button><button class="switch" id="soundSwitch" type="button" aria-label="切换梗音效" onclick="toggleSetting('sound')"></button></div></div>
     <div class="sheet-label">头像 / 昵称</div><div class="identity-list" id="identityList"></div>
     <div class="sheet-label">牌桌</div>
     <div class="settings-menu">
@@ -355,6 +355,7 @@ var DEFAULT_PLAYERS = { 3:['A','B','C'], 4:['A','B','C','D'], 5:['A','B','C','D'
 var SCORE_RANGE = { 3:20, 4:20, 5:25, 6:30 };
 var SYMBOLS = ['🦊','🐼','🐯','🐸','🐵','🐙','🦄','🐧','🐲','🍉','🍊','🌶️','🀄','🃏','♠️','♥️','🌙','⭐'];
 var PERSONA = { '🦊':'狐狐绕后，悄悄把账收齐了。', '🐼':'熊猫不急，竹笋和分数一起打包。', '🐯':'虎虎一抬手，今晚的风向就变了。', '🐸':'蛙声一响，牌桌余额开始搬家。', '🐙':'八只手一起收，效率很合理。', '🐲':'龙王路过，顺手调了一场天气。' };
+var MEME_VOICES = { bomb4:'assets/audio/bomb-4.mp3', bomb2:'assets/audio/bomb-2.mp3', epic:'assets/audio/epic.mp3', comeback:'assets/audio/comeback.mp3', streak5:'assets/audio/streak-5.mp3', streak4:'assets/audio/streak-4.mp3', streak3:'assets/audio/streak-3.mp3', streak2:'assets/audio/streak-2.mp3', large:'assets/audio/large.mp3', medium:'assets/audio/medium.mp3' };
 var storedPlayerCount = parseInt(localStorage.getItem('cardPlayerCount'),10);
 var playerCount = DEFAULT_PLAYERS[storedPlayerCount] ? storedPlayerCount : 4;
 var players = readJSON('cardPlayers', DEFAULT_PLAYERS[playerCount].slice());
@@ -364,7 +365,7 @@ if (typeof settings.effects !== 'boolean') settings.effects = true;
 if (typeof settings.sound !== 'boolean') settings.sound = false;
 var showAll = false, editingPlayer = -1, viewingPlayer = -1, autoCalcIndex = -1, autoCalcLocked = false;
 var pendingCount = playerCount, bombWinner = 0, bombRate = 2, pendingRoundMeta = null;
-var settlementTimer = null, settlementExitTimer = null, settlementAnimations = [], settlementStepTimers = [], settlementTitleTarget = null, soundHintShown = false, audioContext = null;
+var settlementTimer = null, settlementExitTimer = null, settlementAnimations = [], settlementStepTimers = [], settlementTitleTarget = null, soundHintShown = false, audioContext = null, memeVoiceTimer = null, memeVoiceSource = null, memeVoiceData = {}, memeVoiceFetches = {}, memeVoiceBuffers = {}, memeVoicePromises = {}, lastMemeVoice = '';
 
 function readJSON(key, fallback) { try { var v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; } catch (e) { return fallback; } }
 function makeArray(n, val) { return Array.from({length:n}, function(){ return val; }); }
@@ -383,7 +384,7 @@ function init() {
   if (Array.isArray(state.rounds) && (!state.rounds.length || getScores(state.rounds[0]).length === playerCount)) rounds = state.rounds;
   roundMeta = Array.isArray(state.roundMeta) ? state.roundMeta.slice(0,rounds.length).map(normalizeMeta) : [];
   while (roundMeta.length < rounds.length) roundMeta.push(null);
-  saveState(); renderPlayers(); renderHistory(); updateSettingsUI();
+  saveState(); renderPlayers(); renderHistory(); updateSettingsUI(); if(settings.sound)preloadMemeVoices();
 }
 function saveState() {
   localStorage.setItem('cardPlayers', JSON.stringify(players));
@@ -472,7 +473,7 @@ function submitScores(){
   rounds.push(settledScores); roundMeta.push(meta);
   for(var i=0;i<playerCount;i++)totals[i]+=settledScores[i];
   pendingRoundMeta=null; updateSubmitMode(); for(var j=0;j<playerCount;j++)setWheelValue(j,0,false); resetAutoCalc(); saveState(); renderHistory(); renderPlayers(true);
-  var analysis=analyzeRound(settledScores,meta); playSettlementSound(analysis.tier,false,analysis.spoken); if(settings.effects)showSettlement(settledScores,meta,analysis,previousTotals); else { animateRoundTotals(previousTotals,settledScores); showToast('本轮：'+analysis.title); }
+  var analysis=analyzeRound(settledScores,meta); playSettlementSound(analysis.tier,false,analysis.voiceKey); if(settings.effects)showSettlement(settledScores,meta,analysis,previousTotals); else { animateRoundTotals(previousTotals,settledScores); showToast('本轮：'+analysis.title); }
 }
 function animateRoundTotals(previousTotals,scores){
   for(var i=0;i<playerCount;i++){animateTotal(i,previousTotals[i],totals[i],scores[i]);var flash=document.getElementById('flash-'+i);if(flash){flash.className='score-flash '+(scores[i]>=0?'pos':'neg');void flash.offsetWidth;flash.classList.add('show');}}
@@ -528,23 +529,23 @@ function getRoundRoleTitle(idx,scores,meta,roundIndex){
 function isNewRoundTitle(idx,scores,meta,roundIndex){var title=getRoundRoleTitle(idx,scores,meta,roundIndex);for(var r=0;r<roundIndex;r++){if(getRoundRoleTitle(idx,getScores(rounds[r]),roundMeta[r],r)===title)return false;}return true;}
 function analyzeRound(scores,meta){
   var winners=[],losers=[];scores.forEach(function(v,i){if(v>0)winners.push(i);else if(v<0)losers.push(i);});
-  var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption,callout;
+  var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption,callout,voiceKey=null;
   var winner=winners.length===1?winners[0]:-1,streak=winner>=0?getStreak(winner):{count:0},priorLoss=winner>=0?getLossStreakBeforeLatest(winner):0;
   var beforeTotals=totals.map(function(v,i){return v-scores[i];}),wasLast=winner>=0&&rounds.length>3&&beforeTotals[winner]===Math.min.apply(null,beforeTotals);
-  if(meta&&meta.type==='bomb'){tier='bomb';callout=meta.rate===4?'泼天的富贵':'这波包赚的';title=meta.rate===4?'好好好，这么收是吧':'收租主理人';caption=players[meta.winner]+' 一键开收，每人自觉上交 '+meta.rate+' 分。';}
+  if(meta&&meta.type==='bomb'){tier='bomb';voiceKey=meta.rate===4?'bomb4':'bomb2';callout=meta.rate===4?'泼天的富贵':'这波包赚的';title=meta.rate===4?'好好好，就这么收是吧':'收租主理人';caption=players[meta.winner]+' 一键开收，每人自觉上交 '+meta.rate+' 分。';}
   else if(winners.length>1){callout='好好好，这么玩是吧';title=winners.length>=3?'组团上分':'兄弟局';caption=winners.map(function(i){return players[i];}).join('、')+' 水灵灵地组了个队。';}
-  else if(priorLoss>=3||wasLast&&max>=6){callout='前面连滚带爬';title='现在游刃有余';caption=players[winner]+' 一把翻身：刚才的我你爱答不理，现在的我你高攀不起。';}
-  else if(tier==='epic'){callout='我不是针对谁';title='在座各位，都是经验包';caption='单轮 +'+max+'：不是针对谁，今晚全桌统一交学费。';}
-  else if(streak.count>=5){callout='遥遥领先';title='领先得有点不讲道理';caption=players[winner]+' 已经 '+streak.count+' 连胜，含金量还在上升。';}
-  else if(streak.count===4){callout='局势很复杂';title='但优势在我';caption='四连胜到手，这把主打一个从从容容。';}
-  else if(streak.count===3){callout='硬控全桌';title='都先别动';caption='连续三轮拿下，全桌被硬控三秒。';}
-  else if(streak.count===2){callout='状态来了';title='这把包的';caption='两轮连着进账，手感来了挡不住。';}
-  else if(tier==='large'){callout='含金量还在上升';title='多少有点不讲道理';caption='单轮 +'+max+'，对面已经开始汗流浃背了。';}
-  else if(tier==='medium'){callout='这把高端局';title='从从容容拿下';caption='稳定拿下 +'+max+'，主打一个游刃有余。';}
+  else if(priorLoss>=3||wasLast&&max>=6){voiceKey='comeback';callout='前面连滚带爬';title='现在游刃有余';caption=players[winner]+' 一把翻身：刚才的我你爱答不理，现在的我你高攀不起。';}
+  else if(tier==='epic'){voiceKey='epic';callout='我不是针对谁';title='在座各位，都是经验包';caption='单轮 +'+max+'：不是针对谁，今晚全桌统一交学费。';}
+  else if(streak.count>=5){voiceKey='streak5';callout='遥遥领先';title='领先得有点不讲道理';caption=players[winner]+' 已经 '+streak.count+' 连胜，含金量还在上升。';}
+  else if(streak.count===4){voiceKey='streak4';callout='局势很复杂';title='但优势在我';caption='四连胜到手，这把主打一个从从容容。';}
+  else if(streak.count===3){voiceKey='streak3';callout='硬控全桌';title='都先别动';caption='连续三轮拿下，全桌被硬控三秒。';}
+  else if(streak.count===2){voiceKey='streak2';callout='状态来了';title='这把包的';caption='两轮连着进账，手感来了挡不住。';}
+  else if(tier==='large'){voiceKey='large';callout='含金量还在上升';title='多少有点不讲道理';caption='单轮 +'+max+'，对面已经开始汗流浃背了。';}
+  else if(tier==='medium'){voiceKey='medium';callout='这把高端局';title='从从容容拿下';caption='稳定拿下 +'+max+'，主打一个游刃有余。';}
   else {callout='闷声发小财';title='小赚也是赚';caption='先收 +'+max+'，积少成多，问题不大。';}
   if(winners.length===1&&PERSONA[players[winners[0]]])caption=PERSONA[players[winners[0]]]+' · '+caption;
   var achievements=[];winners.forEach(function(i){var s=getStreak(i),bombs=getBombWins(i);if(s.count>=2)achievements.push(s.count+' 连胜');if(bombs===3)achievements.push('解锁爆破王牌');if(bombs>=5)achievements.push('爆破宗师 ×'+bombs);});if(tier==='epic'&&losers.length===playerCount-1)achievements.push('本轮王牌 · 横扫全桌');if(priorLoss>=3)achievements.push('终结连败 · 强势回归');
-  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,spoken:callout+'。'+caption,achievement:achievements.join(' · ')||('本轮最佳 · '+(winner>=0?players[winner]:'组合'))};
+  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,voiceKey:voiceKey,achievement:achievements.join(' · ')||('本轮最佳 · '+(winner>=0?players[winner]:'组合'))};
 }
 function showSettlement(scores,meta,a,previousTotals){
   closeSettlement();var root=document.getElementById('settlement'),duration=a.tier==='epic'||a.tier==='bomb'?5900:a.tier==='large'?5650:5450;document.body.classList.add('settling');root.className='settlement active effect-'+a.tier;root.setAttribute('aria-hidden','false');
@@ -584,8 +585,12 @@ function runTableSettlement(a,scores,meta,previousTotals){
   var stamp=document.getElementById('titleLockStamp');if(stamp.classList.contains('show'))trackSettlementAnimation(stamp.animate([{opacity:0,transform:'rotate(-28deg) scale(3.5)',filter:'blur(5px)'},{opacity:1,transform:'rotate(-7deg) scale(.86)',filter:'blur(0)',offset:.72},{opacity:1,transform:'rotate(-12deg) scale(1)',filter:'blur(0)'}],{duration:430,delay:3100,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'}));
   if(settlementTitleTarget){var burstTitle=document.getElementById('burstTitle'),source=pointOf(burstTitle),destination=pointOf(settlementTitleTarget),sourceSize=parseFloat(getComputedStyle(burstTitle).fontSize),token=document.createElement('span');token.className='title-token-flight';token.textContent=burstTitle.textContent;token.style.fontSize=sourceSize+'px';token.style.left=source.x+'px';token.style.top=source.y+'px';layer.appendChild(token);var tx=destination.x-source.x,ty=destination.y-source.y,targetScale=Math.max(.18,parseFloat(getComputedStyle(settlementTitleTarget).fontSize)/sourceSize),curve=destination.x>=source.x?-62:62;var flight=trackSettlementAnimation(token.animate([{opacity:0,transform:'translate(-50%,-50%) scale(1)',filter:'blur(0)'},{opacity:1,transform:'translate(-50%,-50%) scale(1)',offset:.06},{opacity:1,transform:'translate(calc(-50% + '+(tx*.62+curve)+'px),calc(-50% + '+(ty*.42-28)+'px)) scale(.58)',offset:.58},{opacity:0,transform:'translate(calc(-50% + '+tx+'px),calc(-50% + '+ty+'px)) scale('+targetScale+')',filter:'blur(1px)'}],{duration:920,delay:4100,easing:'cubic-bezier(.25,.72,.18,1)',fill:'both'}));flight.onfinish=function(){token.remove();if(settlementTitleTarget){settlementTitleTarget.style.opacity='';settlementTitleTarget.classList.remove('title-arrived');void settlementTitleTarget.offsetWidth;settlementTitleTarget.classList.add('title-arrived');}};}
 }
-function speakTitle(title,force,delay){if((!settings.sound&&!force)||!window.speechSynthesis||!title)return;try{window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(title);u.lang='zh-CN';u.rate=.88;u.pitch=.88;u.volume=.95;setTimeout(function(){window.speechSynthesis.speak(u);},delay==null?280:delay);}catch(e){}}
-function playSettlementSound(tier,force,title){
+function fetchMemeVoice(key){if(memeVoiceData[key])return Promise.resolve(memeVoiceData[key]);if(memeVoiceFetches[key])return memeVoiceFetches[key];memeVoiceFetches[key]=fetch(MEME_VOICES[key]).then(function(r){if(!r.ok)throw new Error('audio '+r.status);return r.arrayBuffer();}).then(function(data){memeVoiceData[key]=data;return data;});return memeVoiceFetches[key];}
+function preloadMemeVoices(){Object.keys(MEME_VOICES).forEach(function(key){fetchMemeVoice(key).catch(function(){});});}
+function getMemeVoiceBuffer(key){if(memeVoiceBuffers[key])return Promise.resolve(memeVoiceBuffers[key]);if(memeVoicePromises[key])return memeVoicePromises[key];memeVoicePromises[key]=fetchMemeVoice(key).then(function(data){return audioContext.decodeAudioData(data.slice(0));}).then(function(buffer){memeVoiceBuffers[key]=buffer;return buffer;});return memeVoicePromises[key];}
+function stopMemeVoice(){clearTimeout(memeVoiceTimer);memeVoiceTimer=null;if(memeVoiceSource){try{memeVoiceSource.stop();}catch(e){}memeVoiceSource=null;}}
+function playMemeVoice(key,force,delay){if((!settings.sound&&!force)||!key||!MEME_VOICES[key]||!audioContext)return false;stopMemeVoice();memeVoiceTimer=setTimeout(function(){getMemeVoiceBuffer(key).then(function(buffer){if(!settings.sound&&!force)return;var source=audioContext.createBufferSource(),gain=audioContext.createGain();source.buffer=buffer;gain.gain.value=.94;source.connect(gain).connect(audioContext.destination);source.onended=function(){if(memeVoiceSource===source)memeVoiceSource=null;};memeVoiceSource=source;lastMemeVoice=key;source.start();}).catch(function(){if(force)showToast('固定播报加载失败，请检查网络后重试');});},delay==null?2550:delay);return true;}
+function playSettlementSound(tier,force,voiceKey){
   if(!settings.sound&&!force)return false;
   try{
     var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;if(!audioContext||audioContext.state==='closed')audioContext=new C();var ctx=audioContext,now=ctx.currentTime+.025;
@@ -594,7 +599,7 @@ function playSettlementSound(tier,force,title){
     notes.forEach(function(freq,i){var osc=ctx.createOscillator(),gain=ctx.createGain(),start=now+i*.075;osc.type=tier==='bomb'?(i<2?'sawtooth':'square'):i%2?'triangle':'sine';osc.frequency.setValueAtTime(freq,start);if(tier==='bomb'&&i===0)osc.frequency.exponentialRampToValueAtTime(48,start+.5);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(i===0?.42:.26,start+.012);gain.gain.exponentialRampToValueAtTime(.0001,start+.58);osc.connect(gain).connect(master);osc.start(start);osc.stop(start+.62);});
     var stampOsc=ctx.createOscillator(),stampGain=ctx.createGain(),stampAt=now+1.42;stampOsc.type='square';stampOsc.frequency.setValueAtTime(132,stampAt);stampOsc.frequency.exponentialRampToValueAtTime(66,stampAt+.11);stampGain.gain.setValueAtTime(.0001,stampAt);stampGain.gain.exponentialRampToValueAtTime(.22,stampAt+.006);stampGain.gain.exponentialRampToValueAtTime(.0001,stampAt+.16);stampOsc.connect(stampGain).connect(master);stampOsc.start(stampAt);stampOsc.stop(stampAt+.18);
     var length=Math.floor(ctx.sampleRate*.5),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(var n=0;n<length;n++)data[n]=(Math.random()*2-1)*Math.pow(1-n/length,2);var noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),noiseGain=ctx.createGain();noise.buffer=buffer;filter.type=tier==='bomb'?'lowpass':'bandpass';filter.frequency.value=tier==='bomb'?420:1500;filter.Q.value=.7;noiseGain.gain.setValueAtTime(tier==='bomb'?.34:.16,now);noiseGain.gain.exponentialRampToValueAtTime(.0001,now+.5);noise.connect(filter).connect(noiseGain).connect(master);noise.start(now);noise.stop(now+.52);
-    if(!force)speakTitle(title,false,2600);return true;
+    playMemeVoice(voiceKey,force,force?180:settings.effects?2550:520);return true;
   }catch(e){showToast('当前设备阻止了音效，请检查静音模式');return false;}
 }
 
@@ -631,8 +636,8 @@ function updateSubmitMode(){var btn=document.getElementById('submitBtn');btn.cla
 
 function openSettings(){renderIdentityList();updateSettingsUI();openModal('settingsModal');}
 function renderIdentityList(){var root=document.getElementById('identityList');if(!root)return;root.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='identity-item';b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){closeModal('settingsModal');openIdentityModal(idx);};})(i);root.appendChild(b);}}
-function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'){if(settings.sound){showToast('🔊 音效与中文播报已开启');playSettlementSound('medium',true);setTimeout(function(){speakTitle('火力全开');},180);}else{if(window.speechSynthesis)window.speechSynthesis.cancel();showToast('🔇 音效已关闭');}}}
-function previewSound(){showToast('🔊 试听：超神时刻');playSettlementSound('epic',true);setTimeout(function(){speakTitle('超神时刻',true);},180);}
+function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'){if(settings.sound){preloadMemeVoices();showToast('🔊 梗音效已开启');playSettlementSound('medium',true,'medium');}else{stopMemeVoice();showToast('🔇 梗音效已关闭');}}}
+function previewSound(){preloadMemeVoices();showToast('🔊 试听：史诗播报');playSettlementSound('epic',true,'epic');}
 function updateSettingsUI(){var effects=document.getElementById('effectsSwitch'),sound=document.getElementById('soundSwitch');effects.classList.toggle('on',settings.effects);sound.classList.toggle('on',settings.sound);effects.setAttribute('aria-pressed',String(settings.effects));sound.setAttribute('aria-pressed',String(settings.sound));}
 function openNewGameFromSettings(){closeModal('settingsModal');openNewGameModal();}
 function openNewGameModal(){pendingCount=playerCount;renderCountPicker();openModal('newGameModal');}
