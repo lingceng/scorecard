@@ -196,16 +196,16 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .profile-stat { padding: 9px 4px; border-radius: 12px; background: rgba(255,255,255,.035); text-align: center; }
 .profile-stat b { display: block; color: var(--text); font: 600 14px/1 "DM Mono", monospace; }
 .profile-stat span { display: block; margin-top: 5px; color: var(--muted); font-size: 9px; }
-.title-history { display: flex; flex-direction: column; gap: 6px; }
-.title-record { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 8px; padding: 10px 11px; border-radius: 12px; background: rgba(255,255,255,.032); border: 1px solid var(--line); }
-.title-record .round { color: #716b80; font: 500 9px/1 "DM Mono", monospace; }
-.title-record b { color: #cbb27a; font-size: 12px; }
-.title-record.title-tier-medium b { color: #ff9bac; }
-.title-record.title-tier-large b { color: #caa5ff; }
-.title-record.title-tier-epic b { color: #a8ddff; }
-.title-record.title-tier-bomb b { color: #ffc060; }
-.title-record.title-tier-loss b { color: #669b86; }
-.title-record .score { font: 500 12px/1 "DM Mono", monospace; }
+.title-history { display: flex; flex-wrap: wrap; gap: 8px; }
+.title-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 7px 9px 7px 11px; border: 1px solid rgba(203,178,122,.2); border-radius: 10px; background: rgba(203,178,122,.055); color: #cbb27a; }
+.title-chip b { font-size: 11px; line-height: 1; white-space: nowrap; }
+.title-chip .title-count { min-width: 24px; padding: 3px 5px; border-radius: 6px; background: rgba(255,255,255,.055); color: currentColor; font: 700 9px/1 "DM Mono", monospace; text-align: center; }
+.title-chip.title-tier-medium { color: #ff9bac; border-color: rgba(255,139,158,.24); background: rgba(255,139,158,.07); }
+.title-chip.title-tier-large { color: #caa5ff; border-color: rgba(196,155,255,.28); background: rgba(142,96,205,.09); }
+.title-chip.title-tier-epic { color: #a8ddff; border-color: rgba(157,215,255,.34); background: rgba(87,160,211,.1); box-shadow: 0 0 12px rgba(157,215,255,.08); }
+.title-chip.title-tier-bomb { color: #ffc060; border-color: rgba(255,192,96,.36); background: rgba(181,106,16,.11); }
+.title-chip.title-tier-loss { color: #72a58f; border-color: rgba(102,155,134,.2); background: rgba(72,124,101,.06); }
+.title-chip.title-tier-neutral { color: #777188; border-color: var(--line); background: rgba(255,255,255,.025); }
 .profile-empty { padding: 28px 12px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.8; }
 .settlement { --effect-color: var(--amber); --title-panel: linear-gradient(90deg,transparent,rgba(28,22,19,.88) 18%,rgba(28,22,19,.88) 82%,transparent); --title-min: 36px; --title-max: 44px; --title-border: 1px solid color-mix(in srgb,var(--effect-color) 42%,transparent); --stamp-color: #f0b85c; position: fixed; z-index: 900; inset: 0; display: none; overflow: hidden; background: transparent; pointer-events: none; }
 .settlement.active { display: block; }
@@ -618,10 +618,11 @@ function limitSymbol(raw){raw=raw.replace(/[\u0000-\u001F\u007F-\u009F\u202A-\u2
 function saveCustomSymbol(){var symbol=limitSymbol(document.getElementById('customSymbol').value);if(!symbol){showToast('先写一个身份标记');return;}selectSymbol(symbol);}
 function openPlayerProfile(idx){viewingPlayer=idx;document.getElementById('profileTitle').textContent=players[idx]+' · 个人战报';renderPlayerProfile(idx);openModal('profileModal');}
 function renderPlayerProfile(idx){
-  var root=document.getElementById('profileContent'),rank=getRankInfo(idx),wins=getWins(idx),best=getBestRound(idx),bombs=getBombWins(idx),records=[];
-  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),score=scores[idx]||0;records.push('<div class="title-record title-tier-'+getRoleTier(idx,scores,roundMeta[r])+'"><span class="round">R'+(r+1)+'</span><b>'+escapeHTML(getRoundRoleTitle(idx,scores,roundMeta[r],r))+'</b><span class="score" style="color:'+(score>0?'var(--coral)':score<0?'var(--mint)':'#777188')+'">'+signed(score)+'</span></div>');}
+  var root=document.getElementById('profileContent'),rank=getRankInfo(idx),wins=getWins(idx),best=getBestRound(idx),bombs=getBombWins(idx),titleMap=Object.create(null),tierPower={neutral:0,loss:1,small:2,medium:3,large:4,epic:5,bomb:6};
+  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),name=getRoundRoleTitle(idx,scores,roundMeta[r],r),tier=getRoleTier(idx,scores,roundMeta[r]);if(!titleMap[name])titleMap[name]={name:name,count:0,tier:tier,last:r};titleMap[name].count++;if(tierPower[tier]>tierPower[titleMap[name].tier])titleMap[name].tier=tier;}
+  var titleStats=Object.keys(titleMap).map(function(key){return titleMap[key];}).sort(function(a,b){return b.count-a.count||b.last-a.last;}),records=titleStats.map(function(item){return '<div class="title-chip title-tier-'+item.tier+'"><b>'+escapeHTML(item.name)+'</b><span class="title-count">×'+item.count+'</span></div>';});
   var rankCopy=!rounds.length?'新牌桌 · 等待第一轮称号':(rank?rank.label:'当前第 '+getOverallRank(idx)+' 名')+' · 总分 '+totals[idx];
-  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">称号历史</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有称号记录<br>完成第一轮后，这里会生成每轮角色称号</div>');
+  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">称号图鉴 · '+titleStats.length+' 种 / '+rounds.length+' 次</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有称号记录<br>完成第一轮后，这里会生成每轮角色称号</div>');
 }
 function openBombModal(){bombWinner=0;bombRate=2;renderBombPicker();openModal('bombModal');}
 function renderBombPicker(){var wp=document.getElementById('bombWinnerPicker');wp.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='picker-option'+(i===bombWinner?' selected':'');b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){bombWinner=idx;renderBombPicker();};})(i);wp.appendChild(b);}var rp=document.getElementById('bombRatePicker');rp.innerHTML='';[2,4].forEach(function(rate){var b=document.createElement('button');b.type='button';b.className='picker-option'+(rate===bombRate?' selected':'');b.textContent='每人 '+rate+' 分';b.onclick=function(){bombRate=rate;renderBombPicker();};rp.appendChild(b);});document.getElementById('bombPreview').textContent=players[bombWinner]+' 获得 +'+(bombRate*(playerCount-1))+'，其余每人 -'+bombRate+'。炸弹会单独记入历史和称号。';}
