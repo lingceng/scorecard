@@ -355,7 +355,8 @@ var DEFAULT_PLAYERS = { 3:['A','B','C'], 4:['A','B','C','D'], 5:['A','B','C','D'
 var SCORE_RANGE = { 3:20, 4:20, 5:25, 6:30 };
 var SYMBOLS = ['🦊','🐼','🐯','🐸','🐵','🐙','🦄','🐧','🐲','🍉','🍊','🌶️','🀄','🃏','♠️','♥️','🌙','⭐'];
 var PERSONA = { '🦊':'狐狐绕后，悄悄把账收齐了。', '🐼':'熊猫不急，竹笋和分数一起打包。', '🐯':'虎虎一抬手，今晚的风向就变了。', '🐸':'蛙声一响，牌桌余额开始搬家。', '🐙':'八只手一起收，效率很合理。', '🐲':'龙王路过，顺手调了一场天气。' };
-var MEME_VOICES = { bomb4:'assets/audio/bomb-4.mp3', bomb2:'assets/audio/bomb-2.mp3', epic:'assets/audio/epic.mp3', comeback:'assets/audio/comeback.mp3', streak5:'assets/audio/streak-5.mp3', streak4:'assets/audio/streak-4.mp3', streak3:'assets/audio/streak-3.mp3', streak2:'assets/audio/streak-2.mp3', large:'assets/audio/large.mp3', medium:'assets/audio/medium.mp3' };
+var MEME_VOICES = { bomb4:'assets/audio/bomb-4.mp3', bomb2:'assets/audio/bomb-2.mp3', epic:'assets/audio/epic.mp3', comeback:'assets/audio/comeback.mp3', streak5:'assets/audio/streak-5.mp3', streak4:'assets/audio/streak-4.mp3', streak3:'assets/audio/streak-3.mp3', streak2:'assets/audio/streak-2.mp3', wins10:'assets/audio/wins-10.mp3', wins5:'assets/audio/wins-5.mp3', hot5:'assets/audio/hot-5.mp3', leader:'assets/audio/leader.mp3', large:'assets/audio/large.mp3', medium:'assets/audio/medium.mp3' };
+var TITLE_VOICES = { '好好好，就这么收是吧':'bomb4', '收租主理人':'bomb2', '从容翻盘':'comeback', '在座各位，都是经验包':'epic', '遥遥领先':'streak5', '优势在我':'streak4', '硬控全桌':'streak3', '状态来了':'streak2', '十胜老炮':'wins10', '五胜常客':'wins5', '五局四胜，手感发烫':'hot5', '榜一大哥':'leader', '含金量还在上升':'large', '从从容容拿下':'medium' };
 var storedPlayerCount = parseInt(localStorage.getItem('cardPlayerCount'),10);
 var playerCount = DEFAULT_PLAYERS[storedPlayerCount] ? storedPlayerCount : 4;
 var players = readJSON('cardPlayers', DEFAULT_PLAYERS[playerCount].slice());
@@ -410,7 +411,7 @@ function renderPlayers(keepCurrent) {
     ac.append(av,hint);
     var tw = document.createElement('div'); tw.className = 'total-wrap';
     var total = document.createElement('div'); total.className = 'total-score mono ' + scoreClass(totals[i]); total.id = 'total-' + i; total.textContent = totals[i];
-    var playerTitle=getTableTitle(i), lastScores=rounds.length?getScores(rounds[rounds.length-1]):null, titleTier=lastScores?getRoleTier(i,lastScores,roundMeta[rounds.length-1]):'neutral', title = document.createElement('div'); title.className = 'player-title'+(!rounds.length?' empty':' title-tier-'+titleTier); title.textContent = playerTitle;
+    var playerTitle=getTableTitle(i), lastScores=rounds.length?getScores(rounds[rounds.length-1]):null, titleTier=lastScores?getRoundRoleAchievement(i,lastScores,roundMeta[rounds.length-1],rounds.length-1).tier:'neutral', title = document.createElement('div'); title.className = 'player-title'+(!rounds.length?' empty':' title-tier-'+titleTier); title.textContent = playerTitle;
     tw.append(total,title);
     var wc = document.createElement('div'); wc.className = 'wheel-cell';
     var wheel = document.createElement('div'); wheel.className = 'wheel-container'; wheel.id = 'wheel-' + i;
@@ -494,6 +495,10 @@ function getLossStreakBeforeLatest(idx){var count=0;for(var r=rounds.length-2;r>
 function getBombWins(idx){var n=0;for(var i=0;i<roundMeta.length;i++)if(roundMeta[i]&&roundMeta[i].type==='bomb'&&roundMeta[i].winner===idx)n++;return n;}
 function getBestRound(idx){var best=0;for(var r=0;r<rounds.length;r++)best=Math.max(best,getScores(rounds[r])[idx]||0);return best;}
 function getWins(idx){var n=0;for(var r=0;r<rounds.length;r++)if((getScores(rounds[r])[idx]||0)>0)n++;return n;}
+function getWinsAt(idx,end){var n=0;for(var r=0;r<=end;r++)if((getScores(rounds[r])[idx]||0)>0)n++;return n;}
+function getBombWinsAt(idx,end){var n=0;for(var r=0;r<=end;r++)if(roundMeta[r]&&roundMeta[r].type==='bomb'&&roundMeta[r].winner===idx)n++;return n;}
+function getRecentFormAt(idx,end,size){var start=Math.max(0,end-size+1),wins=0,net=0;for(var r=start;r<=end;r++){var v=getScores(rounds[r])[idx]||0;if(v>0)wins++;net+=v;}return {games:end-start+1,wins:wins,net:net};}
+function getTotalsAt(end){var values=makeArray(playerCount,0);for(var r=0;r<=end;r++){var scores=getScores(rounds[r]);for(var i=0;i<playerCount;i++)values[i]+=scores[i]||0;}return values;}
 function getLastRoundWinner(){if(!rounds.length)return -1;var scores=getScores(rounds[rounds.length-1]),winners=[];scores.forEach(function(v,i){if(v>0)winners.push(i);});return winners.length===1?winners[0]:-1;}
 function getRoundTier(scores,meta){if(meta&&meta.type==='bomb')return 'bomb';var max=Math.max.apply(null,scores);return max>=10?'epic':max>=8?'large':max>=4?'medium':'small';}
 function getRoleTier(idx,scores,meta){var score=scores[idx]||0;return score>0?getRoundTier(scores,meta):score<0?'loss':'neutral';}
@@ -502,46 +507,66 @@ function getRankInfo(idx){var rank=getOverallRank(idx);return rank&&rank<=3?{ran
 function getTableTitle(idx){if(!rounds.length)return '等待首轮开张';var r=rounds.length-1;return getRoundRoleTitle(idx,getScores(rounds[r]),roundMeta[r],r);}
 function getPlayerTitle(idx){
   if(!rounds.length)return '等待首轮开张';
-  var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx);
+  var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx),wins=getWins(idx),recent=getRecentFormAt(idx,rounds.length-1,5),sorted=totals.slice().sort(function(a,b){return b-a;}),lead=rank&&rank.rank===1&&sorted.length>1?totals[idx]-sorted[1]:0;
   if(s.sign>0&&s.count>=5)return '👑 遥遥领先 · '+s.count+'连胜';
   if(s.sign>0&&s.count===4)return '⚔ 优势在我 · 四连胜';
   if(s.sign>0&&s.count===3)return '⚡ 硬控全桌 · 三连胜';
   if(s.sign>0&&s.count===2)return '🔥 状态来了 · 双连胜';
   if(bombs>=5)return '💣 泼天富贵 ×'+bombs;
   if(bombs>=3)return '💣 收租主理人 ×'+bombs;
+  if(wins>=10)return '🏅 十胜老炮 · '+wins+' 胜';
+  if(recent.games===5&&recent.wins>=4)return '🌶 五局四胜 · 手感发烫';
+  if(lead>=10)return '👑 榜一大哥 · 领先 '+lead;
+  if(wins>=5)return '🎖 五胜常客 · '+wins+' 胜';
   if(s.sign<0&&s.count>=5)return '🛡 爱你老己 · 稳住';
   if(s.sign<0&&s.count>=3)return '↗ 汗流浃背 · 蓄力中';
   if(best>=10)return '🎯 不是针对谁 · +'+best;
   if(rank&&rank.rank===1)return '◆ 含金量还在上升';
   return '再赢一轮，包有称号的';
 }
-function getPlayerTitleTier(idx){if(!rounds.length)return 'neutral';var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx);if(s.sign>0&&s.count>=5)return 'epic';if(s.sign>0&&s.count>=3)return 'large';if(s.sign>0&&s.count===2)return 'medium';if(bombs>=3)return 'bomb';if(s.sign<0&&s.count>=3)return 'loss';if(best>=10)return 'epic';if(rank&&rank.rank===1)return 'medium';return getRoleTier(idx,getScores(rounds[rounds.length-1]),roundMeta[rounds.length-1]);}
-function getRoundRoleTitle(idx,scores,meta,roundIndex){
-  var score=scores[idx]||0,max=Math.max.apply(null,scores),streak=getStreakAt(idx,roundIndex),losses=0;
+function getPlayerTitleTier(idx){if(!rounds.length)return 'neutral';var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx),wins=getWins(idx),recent=getRecentFormAt(idx,rounds.length-1,5),sorted=totals.slice().sort(function(a,b){return b-a;}),lead=rank&&rank.rank===1&&sorted.length>1?totals[idx]-sorted[1]:0;if(s.sign>0&&s.count>=5)return 'epic';if(s.sign>0&&s.count>=3)return 'large';if(s.sign>0&&s.count===2)return 'medium';if(bombs>=3)return 'bomb';if(wins>=10||recent.games===5&&recent.wins>=4)return 'epic';if(lead>=10||wins>=5)return 'large';if(s.sign<0&&s.count>=3)return 'loss';if(best>=10)return 'epic';if(rank&&rank.rank===1)return 'medium';return getRoleTier(idx,getScores(rounds[rounds.length-1]),roundMeta[rounds.length-1]);}
+function makeRoundAward(title,tier){return {title:title,tier:tier,voiceKey:TITLE_VOICES[title]||null};}
+function getRoundRoleAchievement(idx,scores,meta,roundIndex){
+  var score=scores[idx]||0,max=Math.max.apply(null,scores),streak=getStreakAt(idx,roundIndex),losses=0,wins=getWinsAt(idx,roundIndex),bombs=getBombWinsAt(idx,roundIndex),recent=getRecentFormAt(idx,roundIndex,5),atTotals=getTotalsAt(roundIndex),sorted=atTotals.slice().sort(function(a,b){return b-a;}),rank=sorted.indexOf(atTotals[idx])+1,lead=rank===1&&sorted.length>1?atTotals[idx]-sorted[1]:0;
   for(var r=roundIndex-1;r>=0;r--){if((getScores(rounds[r])[idx]||0)<0)losses++;else break;}
-  if(meta&&meta.type==='bomb'&&meta.winner===idx)return meta.rate===4?'泼天富贵':'一键收租';
-  if(score>0){if(losses>=3)return '从容翻盘';if(streak.count>=5)return '遥遥领先';if(streak.count===4)return '优势在我';if(streak.count===3)return '硬控全桌';if(streak.count===2)return '状态来了';if(max>=10)return '不是针对谁';if(max>=8)return '含金量上升';if(max>=6)return '高端局拿下';if(max>=4)return '水灵灵地拿下';return '闷声发小财';}
-  if(score===0)return '松弛感拉满';
-  if(score<=-4)return '连滚带爬';
-  if(score<=-2)return '汗流浃背';
-  return '问题不大';
+  if(meta&&meta.type==='bomb'&&meta.winner===idx)return meta.rate===4?makeRoundAward('好好好，就这么收是吧','bomb'):makeRoundAward('收租主理人','bomb');
+  if(score>0){
+    if(losses>=3)return makeRoundAward('从容翻盘','epic');
+    if(streak.count>=5)return makeRoundAward('遥遥领先','epic');
+    if(streak.count===4)return makeRoundAward('优势在我','large');
+    if(streak.count===3)return makeRoundAward('硬控全桌','large');
+    if(streak.count===2)return makeRoundAward('状态来了','medium');
+    if(wins===10)return makeRoundAward('十胜老炮','epic');
+    if(wins===5)return makeRoundAward('五胜常客','large');
+    if(recent.games===5&&recent.wins>=4)return makeRoundAward('五局四胜，手感发烫','epic');
+    if(roundIndex>=4&&lead>=10)return makeRoundAward('榜一大哥','large');
+    if(max>=10)return makeRoundAward('在座各位，都是经验包','epic');
+    if(max>=8)return makeRoundAward('含金量还在上升','large');
+    if(max>=4)return makeRoundAward('从从容容拿下','medium');
+    return makeRoundAward('闷声发小财','small');
+  }
+  if(score===0)return makeRoundAward('松弛感拉满','neutral');
+  if(streak.sign<0&&streak.count>=5)return makeRoundAward('先别急，还在蓄力','loss');
+  if(streak.sign<0&&streak.count>=3)return makeRoundAward('三连跪，问题不大','loss');
+  if(streak.sign<0&&streak.count===2)return makeRoundAward('小连跪','loss');
+  if(score<=-4)return makeRoundAward('汗流浃背','loss');
+  if(score<=-2)return makeRoundAward('有点难顶','loss');
+  return makeRoundAward('问题不大','loss');
 }
+function getRoundRoleTitle(idx,scores,meta,roundIndex){return getRoundRoleAchievement(idx,scores,meta,roundIndex).title;}
 function isNewRoundTitle(idx,scores,meta,roundIndex){var title=getRoundRoleTitle(idx,scores,meta,roundIndex);for(var r=0;r<roundIndex;r++){if(getRoundRoleTitle(idx,getScores(rounds[r]),roundMeta[r],r)===title)return false;}return true;}
 function analyzeRound(scores,meta){
   var winners=[],losers=[];scores.forEach(function(v,i){if(v>0)winners.push(i);else if(v<0)losers.push(i);});
   var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption,callout,voiceKey=null;
   var winner=winners.length===1?winners[0]:-1,streak=winner>=0?getStreak(winner):{count:0},priorLoss=winner>=0?getLossStreakBeforeLatest(winner):0;
   var beforeTotals=totals.map(function(v,i){return v-scores[i];}),wasLast=winner>=0&&rounds.length>3&&beforeTotals[winner]===Math.min.apply(null,beforeTotals);
-  if(meta&&meta.type==='bomb'){tier='bomb';voiceKey=meta.rate===4?'bomb4':'bomb2';callout=meta.rate===4?'泼天的富贵':'这波包赚的';title=meta.rate===4?'好好好，就这么收是吧':'收租主理人';caption=players[meta.winner]+' 一键开收，每人自觉上交 '+meta.rate+' 分。';}
-  else if(winners.length>1){callout='好好好，这么玩是吧';title=winners.length>=3?'组团上分':'兄弟局';caption=winners.map(function(i){return players[i];}).join('、')+' 水灵灵地组了个队。';}
-  else if(priorLoss>=3||wasLast&&max>=6){voiceKey='comeback';callout='前面连滚带爬';title='现在游刃有余';caption=players[winner]+' 一把翻身：刚才的我你爱答不理，现在的我你高攀不起。';}
-  else if(tier==='epic'){voiceKey='epic';callout='我不是针对谁';title='在座各位，都是经验包';caption='单轮 +'+max+'：不是针对谁，今晚全桌统一交学费。';}
-  else if(streak.count>=5){voiceKey='streak5';callout='遥遥领先';title='领先得有点不讲道理';caption=players[winner]+' 已经 '+streak.count+' 连胜，含金量还在上升。';}
-  else if(streak.count===4){voiceKey='streak4';callout='局势很复杂';title='但优势在我';caption='四连胜到手，这把主打一个从从容容。';}
-  else if(streak.count===3){voiceKey='streak3';callout='硬控全桌';title='都先别动';caption='连续三轮拿下，全桌被硬控三秒。';}
-  else if(streak.count===2){voiceKey='streak2';callout='状态来了';title='这把包的';caption='两轮连着进账，手感来了挡不住。';}
-  else if(tier==='large'){voiceKey='large';callout='含金量还在上升';title='多少有点不讲道理';caption='单轮 +'+max+'，对面已经开始汗流浃背了。';}
-  else if(tier==='medium'){voiceKey='medium';callout='这把高端局';title='从从容容拿下';caption='稳定拿下 +'+max+'，主打一个游刃有余。';}
+  if(winners.length>1){callout='好好好，这么玩是吧';title=winners.length>=3?'组团上分':'兄弟局';caption=winners.map(function(i){return players[i];}).join('、')+' 水灵灵地组了个队。';}
+  else if(winner>=0){var award=getRoundRoleAchievement(winner,scores,meta,rounds.length-1);tier=award.tier==='neutral'||award.tier==='loss'?tier:award.tier;voiceKey=award.voiceKey;title=award.title;callout=isNewRoundTitle(winner,scores,meta,rounds.length-1)?'新称号锁定':'本轮称号';
+    if(meta&&meta.type==='bomb')caption=players[meta.winner]+' 一键开收，每人自觉上交 '+meta.rate+' 分。';
+    else if(priorLoss>=3||wasLast&&max>=6)caption=players[winner]+' 一把翻身：刚才的我你爱答不理，现在的我你高攀不起。';
+    else if(streak.count>=2)caption=players[winner]+' 已经 '+streak.count+' 连胜，历史状态继续加码。';
+    else caption='本轮 +'+max+'，结合近期与累计战绩锁定「'+title+'」。';
+  }
   else {callout='闷声发小财';title='小赚也是赚';caption='先收 +'+max+'，积少成多，问题不大。';}
   if(winners.length===1&&PERSONA[players[winners[0]]])caption=PERSONA[players[winners[0]]]+' · '+caption;
   var achievements=[];winners.forEach(function(i){var s=getStreak(i),bombs=getBombWins(i);if(s.count>=2)achievements.push(s.count+' 连胜');if(bombs===3)achievements.push('解锁爆破王牌');if(bombs>=5)achievements.push('爆破宗师 ×'+bombs);});if(tier==='epic'&&losers.length===playerCount-1)achievements.push('本轮王牌 · 横扫全桌');if(priorLoss>=3)achievements.push('终结连败 · 强势回归');
@@ -610,7 +635,7 @@ function renderHistory(){
   indices.forEach(function(idx){var scores=getScores(rounds[idx]),meta=roundMeta[idx],el=document.createElement('div');el.className='history-item'+(idx===rounds.length-1?' newest':'');
     var rn=document.createElement('div');rn.className='history-round mono';rn.textContent='R'+(idx+1);if(meta&&meta.type==='bomb'){var bombTag=document.createElement('b');bombTag.textContent='💣 '+meta.rate;rn.appendChild(bombTag);}
     var sc=document.createElement('div');sc.className='history-scores';sc.style.setProperty('--players',playerCount);
-    for(var i=0;i<playerCount;i++){var item=document.createElement('div');item.className='history-score-item'+(scores[i]>0?' is-winner':'');var av=document.createElement('button');av.type='button';av.className='mini-avatar';av.textContent=players[i];av.setAttribute('aria-label','查看'+players[i]+'的称号历史');(function(playerIdx){av.onclick=function(){openPlayerProfile(playerIdx);};})(i);var info=document.createElement('span');info.className='history-score-info';var val=document.createElement('span');val.className='value';val.textContent=signed(scores[i]);val.style.color=scores[i]>0?'var(--coral)':scores[i]<0?'var(--mint)':'#777188';var role=document.createElement('span');role.className='round-role title-tier-'+getRoleTier(i,scores,meta);role.textContent=getRoundRoleTitle(i,scores,meta,idx);info.append(val,role);item.append(av,info);sc.appendChild(item);}
+    for(var i=0;i<playerCount;i++){var item=document.createElement('div');item.className='history-score-item'+(scores[i]>0?' is-winner':'');var av=document.createElement('button');av.type='button';av.className='mini-avatar';av.textContent=players[i];av.setAttribute('aria-label','查看'+players[i]+'的称号历史');(function(playerIdx){av.onclick=function(){openPlayerProfile(playerIdx);};})(i);var info=document.createElement('span');info.className='history-score-info';var val=document.createElement('span');val.className='value';val.textContent=signed(scores[i]);val.style.color=scores[i]>0?'var(--coral)':scores[i]<0?'var(--mint)':'#777188';var role=document.createElement('span'),award=getRoundRoleAchievement(i,scores,meta,idx);role.className='round-role title-tier-'+award.tier;role.textContent=award.title;info.append(val,role);item.append(av,info);sc.appendChild(item);}
     var action=document.createElement('div');if(idx===rounds.length-1){var undo=document.createElement('button');undo.type='button';undo.className='undo-btn';undo.textContent='撤销';undo.onclick=undoLast;action.appendChild(undo);}el.append(rn,sc,action);root.appendChild(el);
   });more.hidden=rounds.length<=5;more.textContent=showAll?'收起':'显示全部（'+rounds.length+' 轮）';
 }
@@ -624,7 +649,7 @@ function saveCustomSymbol(){var symbol=limitSymbol(document.getElementById('cust
 function openPlayerProfile(idx){viewingPlayer=idx;document.getElementById('profileTitle').textContent=players[idx]+' · 个人战报';renderPlayerProfile(idx);openModal('profileModal');}
 function renderPlayerProfile(idx){
   var root=document.getElementById('profileContent'),rank=getRankInfo(idx),wins=getWins(idx),best=getBestRound(idx),bombs=getBombWins(idx),titleMap=Object.create(null),tierPower={neutral:0,loss:1,small:2,medium:3,large:4,epic:5,bomb:6};
-  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),name=getRoundRoleTitle(idx,scores,roundMeta[r],r),tier=getRoleTier(idx,scores,roundMeta[r]);if(!titleMap[name])titleMap[name]={name:name,count:0,tier:tier,last:r};titleMap[name].count++;if(tierPower[tier]>tierPower[titleMap[name].tier])titleMap[name].tier=tier;}
+  for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),award=getRoundRoleAchievement(idx,scores,roundMeta[r],r),name=award.title,tier=award.tier;if(!titleMap[name])titleMap[name]={name:name,count:0,tier:tier,last:r};titleMap[name].count++;if(tierPower[tier]>tierPower[titleMap[name].tier])titleMap[name].tier=tier;}
   var titleStats=Object.keys(titleMap).map(function(key){return titleMap[key];}).sort(function(a,b){return b.count-a.count||b.last-a.last;}),records=titleStats.map(function(item){return '<div class="title-chip title-tier-'+item.tier+'"><b>'+escapeHTML(item.name)+'</b><span class="title-count">×'+item.count+'</span></div>';});
   var rankCopy=!rounds.length?'新牌桌 · 等待第一轮称号':(rank?rank.label:'当前第 '+getOverallRank(idx)+' 名')+' · 总分 '+totals[idx];
   root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">称号图鉴 · '+titleStats.length+' 种 / '+rounds.length+' 次</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有称号记录<br>完成第一轮后，这里会生成每轮角色称号</div>');
