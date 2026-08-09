@@ -447,7 +447,7 @@ function submitScores(){
   rounds.push(settledScores); roundMeta.push(meta);
   for(var i=0;i<playerCount;i++)totals[i]+=settledScores[i];
   pendingRoundMeta=null; updateSubmitMode(); for(var j=0;j<playerCount;j++)setWheelValue(j,0,false); resetAutoCalc(); saveState(); renderHistory(); renderPlayers(true); animateRoundTotals(previousTotals,settledScores);
-  var analysis=analyzeRound(settledScores,meta); playSettlementSound(analysis.tier,false,analysis.title); if(settings.effects)showSettlement(settledScores,meta,analysis); else showToast('本轮：'+analysis.title);
+  var analysis=analyzeRound(settledScores,meta); playSettlementSound(analysis.tier,false,analysis.spoken); if(settings.effects)showSettlement(settledScores,meta,analysis); else showToast('本轮：'+analysis.title);
 }
 function animateRoundTotals(previousTotals,scores){
   for(var i=0;i<playerCount;i++){animateTotal(i,previousTotals[i],totals[i],scores[i]);var flash=document.getElementById('flash-'+i);if(flash){flash.className='score-flash '+(scores[i]>=0?'pos':'neg');void flash.offsetWidth;flash.classList.add('show');}}
@@ -475,27 +475,27 @@ function getTableTitle(idx){if(!rounds.length)return '等待首轮开张';var r=
 function getPlayerTitle(idx){
   if(!rounds.length)return '等待首轮开张';
   var s=getStreak(idx),bombs=getBombWins(idx),best=getBestRound(idx),rank=getRankInfo(idx);
-  if(s.sign>0&&s.count>=5)return '👑 天下无双 · '+s.count+'连胜';
-  if(s.sign>0&&s.count===4)return '⚔ 四连主宰';
-  if(s.sign>0&&s.count===3)return '⚡ 三连制霸';
-  if(s.sign>0&&s.count===2)return '🔥 双响连捷';
-  if(bombs>=5)return '💣 爆破宗师 ×'+bombs;
-  if(bombs>=3)return '💣 爆破王牌 ×'+bombs;
-  if(s.sign<0&&s.count>=5)return '🛡 绝地蓄力';
-  if(s.sign<0&&s.count>=3)return '↗ 逆风蓄力';
-  if(best>=10)return '🎯 超神一击 · +'+best;
-  if(rank&&rank.rank===1)return '◆ 领跑全桌';
-  return '再赢一轮解锁称号';
+  if(s.sign>0&&s.count>=5)return '👑 遥遥领先 · '+s.count+'连胜';
+  if(s.sign>0&&s.count===4)return '⚔ 优势在我 · 四连胜';
+  if(s.sign>0&&s.count===3)return '⚡ 硬控全桌 · 三连胜';
+  if(s.sign>0&&s.count===2)return '🔥 状态来了 · 双连胜';
+  if(bombs>=5)return '💣 泼天富贵 ×'+bombs;
+  if(bombs>=3)return '💣 收租主理人 ×'+bombs;
+  if(s.sign<0&&s.count>=5)return '🛡 爱你老己 · 稳住';
+  if(s.sign<0&&s.count>=3)return '↗ 汗流浃背 · 蓄力中';
+  if(best>=10)return '🎯 不是针对谁 · +'+best;
+  if(rank&&rank.rank===1)return '◆ 含金量还在上升';
+  return '再赢一轮，包有称号的';
 }
 function getRoundRoleTitle(idx,scores,meta,roundIndex){
   var score=scores[idx]||0,max=Math.max.apply(null,scores),streak=getStreakAt(idx,roundIndex),losses=0;
   for(var r=roundIndex-1;r>=0;r--){if((getScores(rounds[r])[idx]||0)<0)losses++;else break;}
-  if(meta&&meta.type==='bomb'&&meta.winner===idx)return meta.rate===4?'终极爆破':'精准爆破';
-  if(score>0){if(losses>=3)return '绝境翻盘';if(streak.count>=5)return '天下无双';if(streak.count===4)return '四连主宰';if(streak.count===3)return '三连制霸';if(streak.count===2)return '双响连捷';if(max>=10)return '超神一击';if(max>=8)return '势不可挡';if(max>=6)return '横扫全桌';if(max>=4)return '火力全开';return '小试锋芒';}
-  if(score===0)return '滴水不漏';
-  if(score<=-4)return '逆风坚守';
-  if(score<=-2)return '稳住阵脚';
-  return '小幅回撤';
+  if(meta&&meta.type==='bomb'&&meta.winner===idx)return meta.rate===4?'泼天富贵':'一键收租';
+  if(score>0){if(losses>=3)return '从容翻盘';if(streak.count>=5)return '遥遥领先';if(streak.count===4)return '优势在我';if(streak.count===3)return '硬控全桌';if(streak.count===2)return '状态来了';if(max>=10)return '不是针对谁';if(max>=8)return '含金量上升';if(max>=6)return '高端局拿下';if(max>=4)return '水灵灵地拿下';return '闷声发小财';}
+  if(score===0)return '松弛感拉满';
+  if(score<=-4)return '连滚带爬';
+  if(score<=-2)return '汗流浃背';
+  return '问题不大';
 }
 function isNewRoundTitle(idx,scores,meta,roundIndex){var title=getRoundRoleTitle(idx,scores,meta,roundIndex);for(var r=0;r<roundIndex;r++){if(getRoundRoleTitle(idx,getScores(rounds[r]),roundMeta[r],r)===title)return false;}return true;}
 function analyzeRound(scores,meta){
@@ -503,24 +503,24 @@ function analyzeRound(scores,meta){
   var max=Math.max.apply(null,scores),tier=max>=10?'epic':max>=8?'large':max>=4?'medium':'small',title,caption,callout;
   var winner=winners.length===1?winners[0]:-1,streak=winner>=0?getStreak(winner):{count:0},priorLoss=winner>=0?getLossStreakBeforeLatest(winner):0;
   var beforeTotals=totals.map(function(v,i){return v-scores[i];}),wasLast=winner>=0&&rounds.length>3&&beforeTotals[winner]===Math.min.apply(null,beforeTotals);
-  if(meta&&meta.type==='bomb'){tier='bomb';callout=meta.rate===4?'终极爆破':'精准爆破';title=meta.rate===4?'满屏爆金币':'全桌收租';caption=players[meta.winner]+' 一键收取，每人贡献 '+meta.rate+' 分。';}
-  else if(winners.length>1){callout=winners.length>=3?'三方联动':'双星联手';title=winners.length>=3?'三核联动':'双核联动';caption=winners.map(function(i){return players[i];}).join('、')+' 完成本轮联合接管。';}
-  else if(priorLoss>=3||wasLast&&max>=6){callout='绝地反击';title='绝境翻盘';caption=players[winner]+' 从逆风位翻回牌桌，终结 '+Math.max(priorLoss,1)+' 轮低迷。';}
-  else if(tier==='epic'){callout='天下无双';title='超神时刻';caption='单轮 +'+max+'，全桌进入高能预警。';}
-  else if(streak.count>=5){callout='天下无双';title='传奇连胜';caption=players[winner]+' 已连续拿下 '+streak.count+' 轮。';}
-  else if(streak.count===4){callout='主宰牌桌';title='四连主宰';caption='节奏完全接管，连胜还在继续。';}
-  else if(streak.count===3){callout='三连制霸';title='三连制霸';caption='连续三轮得手，牌桌风向已经改变。';}
-  else if(streak.count===2){callout='双响连捷';title='双响连捷';caption='连续两轮进账，状态开始升温。';}
-  else if(tier==='large'){callout='势不可挡';title='无人可挡';caption='单轮 +'+max+'，这一波节奏拉满。';}
-  else if(tier==='medium'){callout='火力全开';title='火力全开';caption='稳定拿下 +'+max+'，主动权正在扩大。';}
-  else {callout='首开纪录';title='小试锋芒';caption='先拿 +'+max+'，优势从第一枚筹码开始。';}
+  if(meta&&meta.type==='bomb'){tier='bomb';callout=meta.rate===4?'泼天的富贵':'这波包赚的';title=meta.rate===4?'好好好，这么收是吧':'收租主理人';caption=players[meta.winner]+' 一键开收，每人自觉上交 '+meta.rate+' 分。';}
+  else if(winners.length>1){callout='好好好，这么玩是吧';title=winners.length>=3?'组团上分':'兄弟局';caption=winners.map(function(i){return players[i];}).join('、')+' 水灵灵地组了个队。';}
+  else if(priorLoss>=3||wasLast&&max>=6){callout='前面连滚带爬';title='现在游刃有余';caption=players[winner]+' 一把翻身：刚才的我你爱答不理，现在的我你高攀不起。';}
+  else if(tier==='epic'){callout='我不是针对谁';title='在座各位，都是经验包';caption='单轮 +'+max+'：不是针对谁，今晚全桌统一交学费。';}
+  else if(streak.count>=5){callout='遥遥领先';title='领先得有点不讲道理';caption=players[winner]+' 已经 '+streak.count+' 连胜，含金量还在上升。';}
+  else if(streak.count===4){callout='局势很复杂';title='但优势在我';caption='四连胜到手，这把主打一个从从容容。';}
+  else if(streak.count===3){callout='硬控全桌';title='都先别动';caption='连续三轮拿下，全桌被硬控三秒。';}
+  else if(streak.count===2){callout='状态来了';title='这把包的';caption='两轮连着进账，手感来了挡不住。';}
+  else if(tier==='large'){callout='含金量还在上升';title='多少有点不讲道理';caption='单轮 +'+max+'，对面已经开始汗流浃背了。';}
+  else if(tier==='medium'){callout='这把高端局';title='从从容容拿下';caption='稳定拿下 +'+max+'，主打一个游刃有余。';}
+  else {callout='闷声发小财';title='小赚也是赚';caption='先收 +'+max+'，积少成多，问题不大。';}
   if(winners.length===1&&PERSONA[players[winners[0]]])caption=PERSONA[players[winners[0]]]+' · '+caption;
   var achievements=[];winners.forEach(function(i){var s=getStreak(i),bombs=getBombWins(i);if(s.count>=2)achievements.push(s.count+' 连胜');if(bombs===3)achievements.push('解锁爆破王牌');if(bombs>=5)achievements.push('爆破宗师 ×'+bombs);});if(tier==='epic'&&losers.length===playerCount-1)achievements.push('本轮王牌 · 横扫全桌');if(priorLoss>=3)achievements.push('终结连败 · 强势回归');
-  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,achievement:achievements.join(' · ')||('本轮最佳 · '+(winner>=0?players[winner]:'组合'))};
+  return {winners:winners,losers:losers,tier:tier,title:title,caption:caption,callout:callout,spoken:callout+'。'+caption,achievement:achievements.join(' · ')||('本轮最佳 · '+(winner>=0?players[winner]:'组合'))};
 }
 function showSettlement(scores,meta,a){
   closeSettlement();var root=document.getElementById('settlement'),duration=a.tier==='epic'||a.tier==='bomb'?4000:a.tier==='large'?3750:3600;root.className='settlement active effect-'+a.tier;root.setAttribute('aria-hidden','false');
-  var winner=a.winners.length===1?a.winners[0]:-1,finalTitle=winner>=0?getRoundRoleTitle(winner,scores,meta,rounds.length-1):a.title;document.getElementById('burstRank').textContent=(winner>=0?players[winner]+' · ':'')+a.callout;document.getElementById('burstTitle').textContent=finalTitle;document.getElementById('burstScore').textContent=a.winners.map(function(i){return signed(scores[i]);}).join(' · ');document.getElementById('burstCopy').textContent=a.achievement;
+  var winner=a.winners.length===1?a.winners[0]:-1,finalTitle=winner>=0?getRoundRoleTitle(winner,scores,meta,rounds.length-1):a.title;document.getElementById('burstRank').textContent=(winner>=0?players[winner]+' · ':'')+a.callout;document.getElementById('burstTitle').textContent=finalTitle;document.getElementById('burstScore').textContent=a.winners.map(function(i){return signed(scores[i]);}).join(' · ');document.getElementById('burstCopy').textContent=a.caption;
   var lock=document.getElementById('titleLockStamp');lock.innerHTML=winner>=0&&isNewRoundTitle(winner,scores,meta,rounds.length-1)?'新称号<br>锁定':'称号<br>锁定';lock.classList.toggle('show',winner>=0);settlementTitleTarget=winner>=0?document.querySelector('#row-'+winner+' .player-title'):null;if(settlementTitleTarget)settlementTitleTarget.style.opacity='0';
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){showToast('本轮：'+a.title);settlementTimer=setTimeout(closeSettlement,120);return;}
   requestAnimationFrame(function(){runTableSettlement(a,scores,meta);});
