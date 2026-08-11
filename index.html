@@ -150,6 +150,7 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 @keyframes sheetUp { from { transform: translateY(100%); } }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .sheet-head h2 { font-size: 17px; }
+.sheet-subtitle { margin-top: 4px; color: var(--muted); font-size: 11px; }
 .close-btn { width: 32px; height: 32px; border-radius: 10px; background: rgba(255,255,255,.05); color: var(--muted); }
 .sheet-label { margin: 16px 0 8px; color: var(--muted); font-size: 11px; letter-spacing: .1em; }
 .symbol-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
@@ -161,7 +162,16 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .picker-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
 .picker-option { min-height: 48px; border-radius: 13px; background: rgba(255,255,255,.045); border: 1px solid transparent; font-size: 14px; }
 .picker-option.selected { border-color: var(--amber); color: var(--amber); background: rgba(246,189,99,.07); }
-.bomb-preview { margin: 16px 0; padding: 12px; background: rgba(255,255,255,.035); border-radius: 13px; color: var(--muted); font-size: 12px; line-height: 1.7; text-align: center; }
+.bomb-list { display: grid; gap: 2px; overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.018); }
+.bomb-row { min-height: 58px; display: grid; grid-template-columns: 44px 1fr 68px 68px; gap: 8px; align-items: center; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+.bomb-row:last-child { border-bottom: 0; }
+.bomb-player-mark { width: 36px; height: 36px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: 11px; background: var(--avatar); font-size: 17px; }
+.bomb-player-copy b, .bomb-player-copy span { display: block; }
+.bomb-player-copy b { font-size: 13px; }
+.bomb-player-copy span { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.bomb-rate { height: 38px; border: 1px solid rgba(255,255,255,.09); border-radius: 11px; background: rgba(255,255,255,.045); color: #d6d0df; font-size: 12px; font-weight: 700; }
+.bomb-rate.strong { border-color: rgba(246,189,99,.28); color: var(--amber); background: rgba(246,189,99,.055); }
+.bomb-rate:active { transform: scale(.94); }
 .wide-primary { width: 100%; height: 50px; border-radius: 14px; background: var(--amber); color: #24180c; font-weight: 800; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .setting-copy b { display: block; font-size: 14px; }
@@ -309,11 +319,8 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 
 <div class="modal" id="bombModal" role="dialog" aria-modal="true" aria-labelledby="bombTitle" onclick="closeOnBackdrop(event,'bombModal')">
   <div class="sheet">
-    <div class="sheet-head"><h2 id="bombTitle">💣 炸弹收取</h2><button class="close-btn" type="button" onclick="closeModal('bombModal')">✕</button></div>
-    <div class="sheet-label">谁放的炸弹</div><div class="picker-grid" id="bombWinnerPicker"></div>
-    <div class="sheet-label">每人支付</div><div class="picker-grid" id="bombRatePicker"></div>
-    <div class="bomb-preview" id="bombPreview"></div>
-    <button class="wide-primary" type="button" onclick="applyBomb()">直接结算炸弹</button>
+    <div class="sheet-head"><div><h2 id="bombTitle">💣 炸弹直接结算</h2><div class="sheet-subtitle">点一次，直接入账</div></div><button class="close-btn" type="button" onclick="closeModal('bombModal')">✕</button></div>
+    <div class="bomb-list" id="bombDirectList"></div>
   </div>
 </div>
 
@@ -365,7 +372,7 @@ var settings = readJSON('cardSettings', { effects:true, sound:false });
 if (typeof settings.effects !== 'boolean') settings.effects = true;
 if (typeof settings.sound !== 'boolean') settings.sound = false;
 var showAll = false, editingPlayer = -1, viewingPlayer = -1, autoCalcIndex = -1, autoCalcLocked = false;
-var pendingCount = playerCount, bombWinner = 0, bombRate = 2, pendingRoundMeta = null;
+var pendingCount = playerCount, pendingRoundMeta = null;
 var settlementTimer = null, settlementAnimations = [], settlementStepTimers = [], settlementTitleTarget = null, soundHintShown = false, audioContext = null, memeVoiceTimer = null, memeVoiceSource = null, memeVoiceData = {}, memeVoiceFetches = {}, memeVoiceBuffers = {}, memeVoicePromises = {}, lastMemeVoice = '';
 
 function readJSON(key, fallback) { try { var v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; } catch (e) { return fallback; } }
@@ -608,9 +615,9 @@ function renderPlayerProfile(idx){
   var rankCopy=!rounds.length?'新牌桌 · 等待第一轮称号':(rank?rank.label:'当前第 '+getOverallRank(idx)+' 名')+' · 总分 '+totals[idx];
   root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">稀有称号 · '+titleStats.length+' 种 / '+earnedCount+' 次</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有稀有称号<br>五连胜、里程碑或单局 +10 后再来看看</div>');
 }
-function openBombModal(){bombWinner=0;bombRate=2;renderBombPicker();openModal('bombModal');}
-function renderBombPicker(){var wp=document.getElementById('bombWinnerPicker');wp.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='picker-option'+(i===bombWinner?' selected':'');b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){bombWinner=idx;renderBombPicker();};})(i);wp.appendChild(b);}var rp=document.getElementById('bombRatePicker');rp.innerHTML='';[2,4].forEach(function(rate){var b=document.createElement('button');b.type='button';b.className='picker-option'+(rate===bombRate?' selected':'');b.textContent='每人 '+rate+' 分';b.onclick=function(){bombRate=rate;renderBombPicker();};rp.appendChild(b);});document.getElementById('bombPreview').textContent=players[bombWinner]+' 获得 +'+(bombRate*(playerCount-1))+'，其余每人 -'+bombRate+'。炸弹会单独记入历史和称号。';}
-function applyBomb(){for(var i=0;i<playerCount;i++)setWheelValue(i,i===bombWinner?bombRate*(playerCount-1):-bombRate,true);pendingRoundMeta={type:'bomb',winner:bombWinner,rate:bombRate};userTouched=makeArray(playerCount,true);clearAutoHighlight();closeModal('bombModal');submitScores();}
+function openBombModal(){renderBombDirectList();openModal('bombModal');}
+function renderBombDirectList(){var root=document.getElementById('bombDirectList');root.innerHTML='';for(var i=0;i<playerCount;i++){var row=document.createElement('div');row.className='bomb-row';var mark=document.createElement('span');mark.className='bomb-player-mark';mark.textContent=players[i];var copy=document.createElement('span');copy.className='bomb-player-copy';copy.innerHTML='<b>玩家 '+(i+1)+'</b><span>赢家 '+signed((playerCount-1)*2)+' / '+signed((playerCount-1)*4)+'</span>';row.append(mark,copy);[2,4].forEach(function(rate){var b=document.createElement('button');b.type='button';b.className='bomb-rate'+(rate===4?' strong':'');b.textContent='收 '+rate;b.setAttribute('aria-label','玩家 '+(i+1)+' 炸弹收 '+rate+' 分');(function(winner,unit){b.onclick=function(){commitBomb(winner,unit);};})(i,rate);row.appendChild(b);});root.appendChild(row);}}
+function commitBomb(winner,rate){for(var i=0;i<playerCount;i++)setWheelValue(i,i===winner?rate*(playerCount-1):-rate,true);pendingRoundMeta={type:'bomb',winner:winner,rate:rate};userTouched=makeArray(playerCount,true);clearAutoHighlight();closeModal('bombModal');submitScores();}
 function updateSubmitMode(){var btn=document.getElementById('submitBtn');btn.classList.remove('bomb-ready');btn.textContent='提交分数';}
 
 function openSettings(){renderIdentityList();updateSettingsUI();openModal('settingsModal');}
