@@ -43,6 +43,13 @@
     榜一大哥: "leader",
   };
 
+  var SCORE_TITLES = [
+    { min: 18, title: "一把打到大结局", tier: "legendary" },
+    { min: 14, title: "牌桌接管", tier: "epic" },
+    { min: 10, title: "在座各位，都是经验包", tier: "epic" },
+    { min: 6, title: "这把有点东西", tier: "medium" },
+  ];
+
   function makeArray(n, val) {
     var values = [];
     for (var i = 0; i < n; i++) values.push(val);
@@ -163,9 +170,10 @@
       if (bombs === 5) return makeAward("爆破宗师", "bomb");
       if (bombs === 3) return makeAward("爆破王牌", "bomb");
       if (meta.rate === 4) return makeAward("好好好，就这么收是吧", "bomb");
-      return makeAward("", "neutral");
+      return makeAward("有炸必收", "bomb");
     }
     if (score > 0) {
+      if (score >= 18) return makeAward("一把打到大结局", "legendary");
       if (losses >= 4 && max >= 4) return makeAward("从容翻盘", "epic");
       if (streak.count === 10) return makeAward("十连胜，谁能管管", "epic");
       if (streak.count === 5) return makeAward("遥遥领先", "epic");
@@ -173,7 +181,10 @@
       if (wins === 5) return makeAward("五胜常客", "large");
       if (roundIndex >= 5 && lead >= 15 && previousLead < 15)
         return makeAward("榜一大哥", "large");
-      if (max >= 10) return makeAward("在座各位，都是经验包", "epic");
+      for (var t = 0; t < SCORE_TITLES.length; t++) {
+        if (score >= SCORE_TITLES[t].min)
+          return makeAward(SCORE_TITLES[t].title, SCORE_TITLES[t].tier);
+      }
       return makeAward("", "neutral");
     }
     return makeAward("", score < 0 ? "loss" : "neutral");
@@ -200,6 +211,7 @@
     SCORE_RANGE: SCORE_RANGE,
     SYMBOLS: SYMBOLS,
     TITLE_VOICES: TITLE_VOICES,
+    SCORE_TITLES: SCORE_TITLES,
     makeArray: makeArray,
     getScores: getScores,
     normalizeMeta: normalizeMeta,
