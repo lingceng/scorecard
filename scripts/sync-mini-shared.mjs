@@ -17,7 +17,8 @@ const files = [
   ['assets/audio/streak-5.mp3', 'assets/audio/streak-5.mp3'],
   ['assets/audio/wins-10.mp3', 'assets/audio/wins-10.mp3'],
   ['assets/audio/wins-5.mp3', 'assets/audio/wins-5.mp3'],
-  ['assets/audio/leader.mp3', 'assets/audio/leader.mp3']
+  ['assets/audio/leader.mp3', 'assets/audio/leader.mp3'],
+  ['assets/audio/settlement-flow.mp3', 'assets/audio/settlement-flow.mp3']
 ]
 
 async function same(a, b) {
