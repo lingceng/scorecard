@@ -41,7 +41,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 .mono { font-family: "DM Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 .container { width: min(100%, 440px); margin: 0 auto; padding: 12px 12px 96px; }
 
-.appbar { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; padding: 6px 0 14px; }
+.appbar { display: flex; justify-content: center; align-items: center; padding: 6px 0 14px; }
 .brand { text-align: center; }
 .brand h1 { font-size: 16px; font-weight: 800; letter-spacing: .06em; }
 .icon-btn {
@@ -182,8 +182,6 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .switch::after { content: ""; display: block; width: 22px; height: 22px; border-radius: 50%; background: #8d879b; transition: transform .2s, background .2s; }
 .switch.on { background: rgba(87,216,155,.3); }
 .switch.on::after { transform: translateX(20px); background: var(--mint); }
-.identity-list { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.identity-item { min-height: 44px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--line); font-size: 13px; }
 .confirm-copy { color: var(--muted); font-size: 12px; line-height: 1.7; text-align: center; margin: -5px 0 14px; }
 .setting-controls { display: flex; align-items: center; gap: 8px; }
 .preview-btn { height: 28px; padding: 0 9px; border-radius: 8px; background: rgba(246,189,99,.09); border: 1px solid rgba(246,189,99,.18); color: var(--amber); font-size: 10px; }
@@ -195,6 +193,8 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .menu-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
 .menu-arrow { color: #656073; font-size: 16px; }
 .profile-hero { display: grid; grid-template-columns: 68px 1fr; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(circle at 10% 10%,rgba(246,189,99,.1),transparent 50%),rgba(255,255,255,.025); }
+.profile-copy { min-width: 0; }
+.profile-edit { margin-top: 9px; min-height: 30px; padding: 0 10px; border: 1px solid rgba(246,189,99,.18); border-radius: 9px; background: rgba(246,189,99,.06); color: var(--amber); font-size: 10px; }
 .profile-avatar { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 19px; background: var(--avatar); border: 1px solid rgba(255,255,255,.12); font-size: 27px; }
 .profile-current { color: #cbb27a; font-size: 15px; font-weight: 800; }
 .profile-current.title-tier-medium { color: #ff9bac; }
@@ -220,6 +220,10 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 .title-chip.title-tier-loss { color: #72a58f; border-color: rgba(102,155,134,.2); background: rgba(72,124,101,.06); }
 .title-chip.title-tier-neutral { color: #777188; border-color: var(--line); background: rgba(255,255,255,.025); }
 .profile-empty { padding: 28px 12px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.8; }
+.table-menu-entry { width: 100%; min-height: 48px; margin-top: 18px; padding: 0 14px; display: flex; align-items: center; gap: 11px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.022); color: #918b9f; text-align: left; }
+.table-menu-entry .menu-icon { background: rgba(255,255,255,.04); }
+.table-menu-entry .menu-copy b { color: #bdb7c7; }
+.table-menu-entry:active { background: rgba(255,255,255,.04); transform: scale(.99); }
 .settlement { --effect-color: var(--amber); --title-panel: linear-gradient(90deg,transparent,rgba(28,22,19,.88) 18%,rgba(28,22,19,.88) 82%,transparent); --title-min: 36px; --title-max: 44px; --title-border: 1px solid color-mix(in srgb,var(--effect-color) 42%,transparent); --stamp-color: #f0b85c; position: fixed; z-index: 900; inset: 0; display: none; overflow: hidden; background: transparent; pointer-events: none; }
 .settlement.active { display: block; }
 .settlement.effect-medium { --effect-color: #ff8b9e; --title-panel: linear-gradient(90deg,transparent,rgba(43,18,29,.91) 15%,rgba(34,17,28,.94) 85%,transparent); --title-min: 42px; --title-max: 50px; --title-border: 2px solid rgba(255,139,158,.58); --stamp-color: #ff7f91; }
@@ -277,9 +281,7 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 <body>
 <main class="container">
   <header class="appbar">
-    <span></span>
     <div class="brand"><h1>科科打牌记分器</h1></div>
-    <button class="icon-btn" type="button" aria-label="设置" onclick="openSettings()"><span class="more-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
   </header>
 
   <section class="score-table" aria-label="玩家计分">
@@ -297,6 +299,8 @@ body.settling .win-stamp { opacity: 0; animation: none; }
     <div id="historyList" class="history-list"><div class="no-history">第一轮还没开张</div></div>
     <button class="show-more-btn" type="button" id="showMoreBtn" hidden onclick="toggleShowAll()">显示全部</button>
   </section>
+
+  <button class="table-menu-entry" type="button" onclick="openSettings()"><span class="menu-icon">☷</span><span class="menu-copy"><b>牌桌菜单</b><span>动效、音效、新局与帮助</span></span><span class="menu-arrow">›</span></button>
 
 </main>
 
@@ -341,7 +345,6 @@ body.settling .win-stamp { opacity: 0; animation: none; }
     <div class="sheet-head"><h2 id="settingsTitle">牌桌设置</h2><button class="close-btn" type="button" onclick="closeModal('settingsModal')">✕</button></div>
     <div class="setting-row"><div class="setting-copy"><b>沉浸结算</b><span>显示收租关系、称号和天气效果</span></div><button class="switch" id="effectsSwitch" type="button" aria-label="切换沉浸结算" onclick="toggleSetting('effects')"></button></div>
     <div class="setting-row"><div class="setting-copy"><b>梗音效</b><span>固定短句播报，不朗读分数和说明</span></div><div class="setting-controls"><button class="preview-btn" type="button" onclick="previewSound()">试听</button><button class="switch" id="soundSwitch" type="button" aria-label="切换梗音效" onclick="toggleSetting('sound')"></button></div></div>
-    <div class="sheet-label">头像 / 昵称</div><div class="identity-list" id="identityList"></div>
     <div class="sheet-label">牌桌</div>
     <div class="settings-menu">
       <button class="menu-row" type="button" onclick="openNewGameFromSettings()"><span class="menu-icon">↻</span><span class="menu-copy"><b>新局 / 改人数</b><span>清空本局记录并重新选择人数</span></span><span class="menu-arrow">›</span></button>
@@ -378,7 +381,7 @@ if (typeof settings.effects !== 'boolean') settings.effects = true;
 if (typeof settings.sound !== 'boolean') settings.sound = false;
 var showAll = false, editingPlayer = -1, viewingPlayer = -1, autoCalcIndex = -1, autoCalcLocked = false;
 var pendingCount = playerCount, pendingRoundMeta = null;
-var settlementTimer = null, settlementAnimations = [], settlementStepTimers = [], settlementTitleTarget = null, soundHintShown = false, audioContext = null, memeVoiceTimer = null, memeVoiceSource = null, memeVoiceData = {}, memeVoiceFetches = {}, memeVoiceBuffers = {}, memeVoicePromises = {}, lastMemeVoice = '';
+var settlementTimer = null, settlementAnimations = [], settlementStepTimers = [], settlementTitleTarget = null, soundHintShown = false, audioContext = null, memeVoiceTimer = null, memeVoiceSource = null, memeVoiceData = {}, memeVoiceFetches = {}, memeVoiceBuffers = {}, memeVoicePromises = {}, lastMemeVoice = '', identityReturnToProfile = false;
 
 function readJSON(key, fallback) { try { var v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; } catch (e) { return fallback; } }
 function makeArray(n, val) { return ScorecardRules.makeArray(n,val); }
@@ -609,7 +612,8 @@ function toggleShowAll(){showAll=!showAll;renderHistory();}
 function undoLast(){if(!rounds.length)return;var last=getScores(rounds.pop()),previousTotals=totals.slice();roundMeta.pop();for(var i=0;i<playerCount;i++)totals[i]-=last[i];saveState();renderHistory();renderPlayers(true);animateRoundTotals(previousTotals,last.map(function(v){return -v;}));showToast('已撤销上一轮');}
 
 function openIdentityModal(idx){editingPlayer=idx;var grid=document.getElementById('symbolGrid');grid.innerHTML='';SYMBOLS.forEach(function(symbol){var b=document.createElement('button');b.type='button';b.className='symbol-option'+(players[idx]===symbol?' current':'');b.textContent=symbol;b.onclick=function(){selectSymbol(symbol);};grid.appendChild(b);});document.getElementById('customSymbol').value='';openModal('identityModal');}
-function selectSymbol(symbol){players[editingPlayer]=symbol;saveState();closeModal('identityModal');renderPlayers(true);renderHistory();renderIdentityList();}
+function openIdentityFromProfile(){identityReturnToProfile=true;closeModal('profileModal');openIdentityModal(viewingPlayer);}
+function selectSymbol(symbol){players[editingPlayer]=symbol;saveState();closeModal('identityModal');renderPlayers(true);renderHistory();if(identityReturnToProfile){identityReturnToProfile=false;openPlayerProfile(editingPlayer);}}
 function limitSymbol(raw){raw=raw.replace(/[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/g,'').trim();if(!raw)return '';if(window.Intl&&Intl.Segmenter){var parts=[],segments=new Intl.Segmenter('zh-CN',{granularity:'grapheme'}).segment(raw);for(var item of segments){parts.push(item.segment);if(parts.length===2)break;}return parts.join('');}return Array.from(raw).slice(0,2).join('');}
 function saveCustomSymbol(){var symbol=limitSymbol(document.getElementById('customSymbol').value);if(!symbol){showToast('先写一个身份标记');return;}selectSymbol(symbol);}
 function openPlayerProfile(idx){viewingPlayer=idx;document.getElementById('profileTitle').textContent=players[idx]+' · 个人战报';renderPlayerProfile(idx);openModal('profileModal');}
@@ -618,15 +622,14 @@ function renderPlayerProfile(idx){
   for(var r=rounds.length-1;r>=0;r--){var scores=getScores(rounds[r]),award=getRoundRoleAchievement(idx,scores,roundMeta[r],r);if(!award.awarded)continue;var name=award.title,tier=award.tier;earnedCount++;if(!titleMap[name])titleMap[name]={name:name,count:0,tier:tier,last:r};titleMap[name].count++;if(tierPower[tier]>tierPower[titleMap[name].tier])titleMap[name].tier=tier;}
   var titleStats=Object.keys(titleMap).map(function(key){return titleMap[key];}).sort(function(a,b){return b.count-a.count||b.last-a.last;}),records=titleStats.map(function(item){return '<div class="title-chip title-tier-'+item.tier+'"><b>'+escapeHTML(item.name)+'</b><span class="title-count">×'+item.count+'</span></div>';});
   var rankCopy=!rounds.length?'新牌桌 · 等待第一轮称号':(rank?rank.label:'当前第 '+getOverallRank(idx)+' 名')+' · 总分 '+totals[idx];
-  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">稀有称号 · '+titleStats.length+' 种 / '+earnedCount+' 次</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有稀有称号<br>五连胜、里程碑或单局 +10 后再来看看</div>');
+  root.innerHTML='<div class="profile-hero"><div class="profile-avatar">'+escapeHTML(players[idx])+'</div><div class="profile-copy"><div class="profile-current title-tier-'+getPlayerTitleTier(idx)+'">'+escapeHTML(getPlayerTitle(idx))+'</div><div class="profile-rank">'+rankCopy+'</div><button class="profile-edit" type="button" onclick="openIdentityFromProfile()">编辑身份标记</button></div></div><div class="profile-stats"><div class="profile-stat"><b>'+wins+'</b><span>胜场</span></div><div class="profile-stat"><b>+'+best+'</b><span>单轮最高</span></div><div class="profile-stat"><b>'+bombs+'</b><span>炸弹</span></div></div><div class="sheet-label">稀有称号 · '+titleStats.length+' 种 / '+earnedCount+' 次</div>'+(records.length?'<div class="title-history">'+records.join('')+'</div>':'<div class="profile-empty">🏷️<br>还没有稀有称号<br>炸弹、单局 +6 或关键里程碑后再来看看</div>');
 }
 function openBombModal(){renderBombDirectList();openModal('bombModal');}
 function renderBombDirectList(){var root=document.getElementById('bombDirectList');root.innerHTML='';for(var i=0;i<playerCount;i++){var row=document.createElement('div');row.className='bomb-row';var mark=document.createElement('span');mark.className='bomb-player-mark';mark.textContent=players[i];var copy=document.createElement('span');copy.className='bomb-player-copy';copy.innerHTML='<b>玩家 '+(i+1)+'</b><span>赢家 '+signed((playerCount-1)*2)+' / '+signed((playerCount-1)*4)+'</span>';row.append(mark,copy);[2,4].forEach(function(rate){var b=document.createElement('button');b.type='button';b.className='bomb-rate'+(rate===4?' strong':'');b.textContent='收 '+rate;b.setAttribute('aria-label','玩家 '+(i+1)+' 炸弹收 '+rate+' 分');(function(winner,unit){b.onclick=function(){commitBomb(winner,unit);};})(i,rate);row.appendChild(b);});root.appendChild(row);}}
 function commitBomb(winner,rate){for(var i=0;i<playerCount;i++)setWheelValue(i,i===winner?rate*(playerCount-1):-rate,true);pendingRoundMeta={type:'bomb',winner:winner,rate:rate};userTouched=makeArray(playerCount,true);clearAutoHighlight();closeModal('bombModal');submitScores();}
 function updateSubmitMode(){var btn=document.getElementById('submitBtn');btn.classList.remove('bomb-ready');btn.textContent='提交分数';}
 
-function openSettings(){renderIdentityList();updateSettingsUI();openModal('settingsModal');}
-function renderIdentityList(){var root=document.getElementById('identityList');if(!root)return;root.innerHTML='';for(var i=0;i<playerCount;i++){var b=document.createElement('button');b.type='button';b.className='identity-item';b.textContent=players[i]+' · 玩家 '+(i+1);(function(idx){b.onclick=function(){closeModal('settingsModal');openIdentityModal(idx);};})(i);root.appendChild(b);}}
+function openSettings(){updateSettingsUI();openModal('settingsModal');}
 function toggleSetting(key){settings[key]=!settings[key];saveState();updateSettingsUI();if(key==='sound'){if(settings.sound){preloadMemeVoices();showToast('🔊 梗音效已开启');playSettlementSound('epic',true,'epic');}else{stopMemeVoice();showToast('🔇 梗音效已关闭');}}}
 function previewSound(){preloadMemeVoices();showToast('🔊 试听：史诗播报');playSettlementSound('epic',true,'epic');}
 function updateSettingsUI(){var effects=document.getElementById('effectsSwitch'),sound=document.getElementById('soundSwitch');effects.classList.toggle('on',settings.effects);sound.classList.toggle('on',settings.sound);effects.setAttribute('aria-pressed',String(settings.effects));sound.setAttribute('aria-pressed',String(settings.sound));}
