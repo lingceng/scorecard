@@ -364,13 +364,13 @@ body.settling .win-stamp { opacity: 0; animation: none; }
 
 <div class="toast" id="toast"></div>
 
-<script src="./shared/game-rules.js"></script>
+<script src="./shared/game-rules.js?v=20260813b"></script>
 <script>
 var DEFAULT_PLAYERS = ScorecardRules.DEFAULT_PLAYERS;
 var SCORE_RANGE = ScorecardRules.SCORE_RANGE;
 var SYMBOLS = ScorecardRules.SYMBOLS;
 var PERSONA = { '🦊':'狐狐绕后，悄悄把账收齐了。', '🐼':'熊猫不急，竹笋和分数一起打包。', '🐯':'虎虎一抬手，今晚的风向就变了。', '🐸':'蛙声一响，牌桌余额开始搬家。', '🐙':'八只手一起收，效率很合理。', '🐲':'龙王路过，顺手调了一场天气。' };
-var MEME_VOICES = { bomb4:'assets/audio/bomb-4.mp3', bombAce:'assets/audio/bomb-ace.mp3', bombMaster:'assets/audio/bomb-master.mp3', epic:'assets/audio/epic.mp3', comeback:'assets/audio/comeback.mp3', streak10:'assets/audio/streak-10.mp3', streak5:'assets/audio/streak-5.mp3', wins10:'assets/audio/wins-10.mp3', wins5:'assets/audio/wins-5.mp3', leader:'assets/audio/leader.mp3' };
+var MEME_VOICES = {};Object.keys(ScorecardRules.VOICE_FILES).forEach(function(key){MEME_VOICES[key]='assets/audio/'+ScorecardRules.VOICE_FILES[key];});
 var TITLE_VOICES = ScorecardRules.TITLE_VOICES;
 var storedPlayerCount = parseInt(localStorage.getItem('cardPlayerCount'),10);
 var playerCount = DEFAULT_PLAYERS[storedPlayerCount] ? storedPlayerCount : 4;

@@ -32,8 +32,12 @@
   ];
   var TITLE_VOICES = {
     "好好好，就这么收是吧": "bomb4",
+    有炸必收: "bomb2",
     爆破王牌: "bombAce",
     爆破宗师: "bombMaster",
+    "这把有点东西": "score6",
+    牌桌接管: "score14",
+    一把打到大结局: "score18",
     从容翻盘: "comeback",
     "在座各位，都是经验包": "epic",
     "十连胜，谁能管管": "streak10",
@@ -41,6 +45,22 @@
     十胜老炮: "wins10",
     五胜常客: "wins5",
     榜一大哥: "leader",
+  };
+  var VOICE_FILES = {
+    bomb4: "bomb-4.mp3",
+    bomb2: "bomb-2.mp3",
+    bombAce: "bomb-ace.mp3",
+    bombMaster: "bomb-master.mp3",
+    score6: "score-6.mp3",
+    score14: "score-14.mp3",
+    score18: "score-18.mp3",
+    comeback: "comeback.mp3",
+    epic: "epic.mp3",
+    streak10: "streak-10.mp3",
+    streak5: "streak-5.mp3",
+    wins10: "wins-10.mp3",
+    wins5: "wins-5.mp3",
+    leader: "leader.mp3",
   };
 
   var SCORE_TITLES = [
@@ -211,6 +231,7 @@
     SCORE_RANGE: SCORE_RANGE,
     SYMBOLS: SYMBOLS,
     TITLE_VOICES: TITLE_VOICES,
+    VOICE_FILES: VOICE_FILES,
     SCORE_TITLES: SCORE_TITLES,
     makeArray: makeArray,
     getScores: getScores,
